@@ -1,0 +1,353 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    .admin-bg {
+        background: radial-gradient(900px 500px at 85% 0%, rgba(245,158,11,0.06), transparent 60%), #0B1220;
+        min-height: 100vh;
+    }
+
+    .admin-label {
+        color: #FBBF24;
+        letter-spacing: 2px;
+        font-size: .75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Stat cards */
+    .stat-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 14px;
+        padding: 1.5rem;
+        transition: all .25s;
+        height: 100%;
+    }
+
+        .stat-card:hover {
+            border-color: rgba(148,163,184,.4);
+            transform: translateY(-2px);
+        }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-num {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1;
+    }
+
+    .stat-label-text {
+        color: #94A3B8;
+        font-size: .85rem;
+        margin-top: .3rem;
+    }
+
+    .stat-sub {
+        color: #64748B;
+        font-size: .75rem;
+    }
+
+    .stat-amber {
+        border-color: rgba(245,158,11,.4) !important;
+    }
+
+        .stat-amber:hover {
+            border-color: #F59E0B !important;
+            box-shadow: 0 8px 25px rgba(245,158,11,.15);
+        }
+
+    /* Action cards */
+    .action-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 14px;
+        padding: 1.5rem;
+        transition: all .25s;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+        .action-card:hover {
+            border-color: rgba(59,130,246,.5);
+            transform: translateY(-4px);
+            color: inherit;
+        }
+
+        .action-card.amber:hover {
+            border-color: #F59E0B;
+            box-shadow: 0 8px 25px rgba(245,158,11,.15);
+        }
+
+    .action-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(148,163,184,.08);
+        border: 1px solid rgba(148,163,184,.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+    }
+
+        .action-icon.amber {
+            background: rgba(245,158,11,.1);
+            border-color: rgba(245,158,11,.3);
+            color: #FBBF24;
+        }
+
+    .action-title {
+        color: #fff;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: .3rem;
+    }
+
+    .action-desc {
+        color: #94A3B8;
+        font-size: .85rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-link {
+        color: #60A5FA;
+        font-size: .85rem;
+        font-weight: 600;
+    }
+
+        .action-link.amber {
+            color: #FBBF24;
+        }
+
+    .pulse-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #F59E0B;
+        display: inline-block;
+        animation: pulse-amber 1.6s infinite;
+        margin-left: .3rem;
+    }
+
+    @@keyframes pulse-amber {
+        0% {
+            box-shadow: 0 0 0 0 rgba(245,158,11,.6);
+        }
+
+        70% {
+            box-shadow: 0 0 0 8px rgba(245,158,11,0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(245,158,11,0);
+        }
+    }
+
+    .chart-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 14px;
+        padding: 1.75rem;
+    }
+</style>
+
+<section class="admin-bg" style="padding: 3rem 0 4rem;">
+    <div class="container">
+
+        <!-- ===== HEADER ===== -->
+        <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap">
+            <div>
+                <div class="admin-label mb-2"><i class="bi bi-shield-lock-fill me-1"></i>Admin Access</div>
+                <h1 class="fw-bold mb-1" style="color: #fff; font-size: 2rem;">Admin Dashboard</h1>
+                <p class="mb-0" style="color: #94A3B8;">Manage platform users, internships, and approvals.</p>
+            </div>
+            <a asp-action="PendingUpgrades" class="btn px-4 py-2 fw-semibold text-decoration-none" style="background: #F59E0B; color: #0B1220; border-radius: 10px;">
+                <i class="bi bi-bell-fill me-1"></i>View Pending Approvals
+                @if (ViewBag.PendingUpgrades > 0)
+                {
+                    <span class="badge rounded-pill ms-2" style="background: #0B1220; color: #FBBF24;">@ViewBag.PendingUpgrades</span>
+                }
+            </a>
+        </div>
+
+        <!-- ===== STAT CARDS ===== -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.3); color: #60A5FA;">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stat-num">@ViewBag.TotalUsers</div>
+                    <div class="stat-label-text">Total Users</div>
+                    <div class="stat-sub">All registered accounts</div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); color: #34D399;">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                    <div class="stat-num">@ViewBag.TotalInternships</div>
+                    <div class="stat-label-text">Total Internships</div>
+                    <div class="stat-sub">Posted opportunities</div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.3); color: #A78BFA;">
+                        <i class="bi bi-file-earmark-text-fill"></i>
+                    </div>
+                    <div class="stat-num">@ViewBag.TotalApplications</div>
+                    <div class="stat-label-text">Total Applications</div>
+                    <div class="stat-sub">Submitted by students</div>
+                </div>
+            </div>
+
+            <div class="col-md-3 col-6">
+                <div class="stat-card stat-amber">
+                    <div class="stat-icon amber" style="background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.45); color: #FBBF24;">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="stat-num" style="color: #FBBF24;">@ViewBag.PendingUpgrades</div>
+                    <div class="stat-label-text">Pending Upgrades</div>
+                    <div class="stat-sub">Awaiting approval<span class="pulse-dot"></span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== QUICK ACTIONS ===== -->
+        <div class="mb-3">
+            <div class="fw-bold text-uppercase" style="color: #94A3B8; letter-spacing: 1.5px; font-size: .72rem;">Quick Actions</div>
+            <h3 class="fw-bold mb-0" style="color: #fff;">Manage Platform</h3>
+        </div>
+
+        <div class="row g-3 mb-5">
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="Users" class="action-card">
+                    <div class="action-icon"><i class="bi bi-people-fill" style="color: #60A5FA;"></i></div>
+                    <div class="action-title">Users</div>
+                    <div class="action-desc">View and delete registered accounts.</div>
+                    <span class="action-link">View All →</span>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="Internships" class="action-card">
+                    <div class="action-icon"><i class="bi bi-briefcase-fill" style="color: #34D399;"></i></div>
+                    <div class="action-title">Internships</div>
+                    <div class="action-desc">Manage all posted opportunities.</div>
+                    <span class="action-link">View All →</span>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="Applications" class="action-card">
+                    <div class="action-icon"><i class="bi bi-file-earmark-text-fill" style="color: #A78BFA;"></i></div>
+                    <div class="action-title">Applications</div>
+                    <div class="action-desc">Review all student applications.</div>
+                    <span class="action-link">View All →</span>
+                </a>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <a asp-action="PendingUpgrades" class="action-card amber">
+                    <div class="action-icon amber"><i class="bi bi-hourglass-split"></i></div>
+                    <div class="action-title">Pending Upgrades</div>
+                    <div class="action-desc">Approve premium company payments.</div>
+                    <span class="action-link amber">Manage @if (ViewBag.PendingUpgrades > 0){
+                    <text>(@ViewBag.PendingUpgrades pending)</text>
+                                        }
+ →</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ===== CHART ===== -->
+        <div class="chart-card">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                <div>
+                    <div class="fw-bold text-uppercase" style="color: #60A5FA; letter-spacing: 1.5px; font-size: .72rem;">Analytics</div>
+                    <h4 class="fw-bold mb-0" style="color: #fff;">Top In-Demand Skills</h4>
+                </div>
+                <span class="badge" style="background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.3); color: #60A5FA; padding: .35rem .8rem; font-weight: 600;">
+                    <i class="bi bi-graph-up me-1"></i>Last 30 days
+                </span>
+            </div>
+            <div style="height: 380px;">
+                <canvas id="skillsChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx2 = document.getElementById('skillsChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: @Html.Raw(ViewBag.SkillLabels ?? "[]"),
+            datasets: [{
+                label: 'Internships',
+                data: @Html.Raw(ViewBag.SkillData ?? "[]"),
+                backgroundColor: (ctx) => {
+                    const chart = ctx.chart;
+                    const { ctx: c, chartArea } = chart;
+                    if (!chartArea) return '#3B82F6';
+                    const gradient = c.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, 'rgba(59,130,246,0.4)');
+                    gradient.addColorStop(1, 'rgba(99,102,241,0.8)');
+                    return gradient;
+                },
+                borderColor: '#3B82F6',
+                borderWidth: 1,
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1E293B',
+                    titleColor: '#F1F5F9',
+                    bodyColor: '#CBD5E1',
+                    borderColor: 'rgba(148,163,184,.2)',
+                    borderWidth: 1,
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(148,163,184,.08)', drawBorder: false },
+                    ticks: { color: '#64748B', font: { size: 11 } }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#94A3B8', font: { size: 11, weight: '500' } }
+                }
+            }
+        }
+    });
+</script>

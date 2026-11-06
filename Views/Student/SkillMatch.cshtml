@@ -1,0 +1,53 @@
+﻿@model InternshipManagementSystem.Models.User
+@{
+    ViewData["Title"] = "Skill Match Settings";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <h4 class="mb-0">🎯 Skill Match Settings</h4>
+                    <small>Update your skills to improve internship matching</small>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            ✅ @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <div class="alert alert-info">
+                        <strong>💡 Tip:</strong> Your skills are used to calculate match percentage with internships.
+                        For detailed profile (Education, Experience, Photo), use
+                        <a asp-controller="CV" asp-action="Edit">CV Builder</a>.
+                    </div>
+
+                    <form asp-action="UpdateSkills" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Your Skills (Comma separated)</label>
+                            <input type="text" name="skills" value="@Model.Skills"
+                                   class="form-control"
+                                   placeholder="e.g. C#, SQL, HTML, CSS, React, .NET" />
+                            <small class="text-muted">Separate each skill with a comma</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-lg" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">
+                                💾 Update Skills
+                            </button>
+                            <a asp-controller="CV" asp-action="Edit" class="btn btn-outline-primary">
+                                Go to CV Builder
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,67 @@
+﻿@model InternshipManagementSystem.Models.PaymentTransaction
+@{
+    ViewData["Title"] = "Payment Receipt";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0">✅ Payment Submitted Successfully</h3>
+                    <p class="mb-0 mt-2">Your transaction is pending Admin approval.</p>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="display-1">🧾</div>
+                        <h4 class="fw-bold">Official Receipt</h4>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light" style="width: 40%;">Transaction ID</th>
+                                <td class="fw-bold text-primary">@Model.TransactionId</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Package</th>
+                                <td>@Model.PackageName</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Amount Paid</th>
+                                <td class="fw-bold fs-5">$@Model.Amount</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Date</th>
+                                <td>@Model.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light">Status</th>
+                                <td>
+                                    @if (Model.Status == "Pending")
+                                    {
+                                        <span class="badge bg-warning text-dark fs-6">⏳ Pending Approval</span>
+                                        <p class="text-muted mt-2 mb-0 small">Once the Admin approves this payment, <strong>+50 posts</strong> will be automatically added to your account.</p>
+                                    }
+                                    else if (Model.Status == "Approved")
+                                    {
+                                        <span class="badge bg-success fs-6">✅ Approved</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger fs-6"> Rejected</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <a asp-action="History" class="btn btn-outline-secondary">View All Transactions</a>
+                        <a asp-controller="Internship" asp-action="MyInternships" class="btn btn-primary">Go to My Internships</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

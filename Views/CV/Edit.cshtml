@@ -1,0 +1,95 @@
+﻿@model InternshipManagementSystem.Models.CV
+@{
+    ViewData["Title"] = "Build My CV";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">🛠️ Build Your CV</h2>
+
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-3">
+            <h4 class="mb-0">📝 Personal Information</h4>
+        </div>
+        <div class="card-body p-4">
+            <!-- Form submits to Preview action -->
+            <form asp-action="Preview" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+
+                <!-- ✅ Photo Upload Section with Current Photo Display -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">📸 Profile Photo</label>
+
+                        @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+                        {
+                            <!-- Show current photo -->
+                            <div class="mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="~/photos/@Model.PhotoFileName"
+                                         alt="Current Photo"
+                                         class="rounded-circle border border-3"
+                                         style="width: 100px; height: 100px; object-fit: cover;" />
+                                    <div>
+                                        <p class="mb-1 text-success fw-bold">✓ Current photo is saved</p>
+                                        <small class="text-muted">Upload a new photo to replace it, or leave empty to keep current</small>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.PhotoFileName))
+                        {
+                            <div class="mb-3 text-center">
+                                <p class="text-muted small mb-2">Current Photo:</p>
+                                <img src="~/photos/@Model.PhotoFileName" alt="Current Profile" class="rounded-circle border border-2" style="width: 100px; height: 100px; object-fit: cover;" />
+                            </div>
+                        }
+
+                        <input type="file" name="photo" class="form-control" accept="image/*" />
+                        <small class="text-muted">Upload a professional photo (JPG, PNG)</small>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">📱 Phone Number</label>
+                        <input type="text" asp-for="Phone" class="form-control" placeholder="+880 1XXX-XXXXXX" required />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">🔗 LinkedIn Profile</label>
+                        <input type="text" asp-for="LinkedIn" class="form-control" placeholder="linkedin.com/in/yourname" />
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🛠️ Skills</label>
+                    <textarea asp-for="Skills" class="form-control" rows="2" placeholder="e.g. C#, SQL, HTML, CSS"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🎯 Interests</label>
+                    <textarea asp-for="Interests" class="form-control" rows="2" placeholder="e.g. Web Development, AI/ML"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🎯 Career Objective</label>
+                    <textarea asp-for="Objective" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">🎓 Education</label>
+                    <textarea asp-for="Education" class="form-control" rows="4" placeholder="BSc in Computer Science&#10;University of XYZ (2022-2026)" required></textarea>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">💼 Experience & Projects</label>
+                    <textarea asp-for="Experience" class="form-control" rows="4"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <!-- Only Preview button here -->
+                    <button type="submit" class="btn btn-success btn-lg">👁️ Preview CV</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

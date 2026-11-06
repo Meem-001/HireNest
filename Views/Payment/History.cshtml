@@ -1,0 +1,71 @@
+﻿@model IEnumerable<InternshipManagementSystem.Models.PaymentTransaction>
+@{
+    ViewData["Title"] = "Payment History";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">💳 Payment History</h2>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered bg-white shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Package</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@item.TransactionId</td>
+                            <td><span class="badge bg-info">@item.PackageName</span></td>
+                            <td class="fw-bold">$@item.Amount</td>
+                            <td>@item.CreatedAt.ToString("MMM dd, yyyy hh:mm tt")</td>
+                            <td>
+                                @if (item.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark">⏳ Pending</span>
+                                }
+                                else if (item.Status == "Approved")
+                                {
+                                    <span class="badge bg-success">✅ Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">❌ Rejected</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Receipt" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" target="_blank">
+                                    🧾 View Receipt
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center py-5">
+            <div class="display-1 mb-3">📭</div>
+            <h4>No payment history yet</h4>
+            <p class="mb-3">You haven't made any upgrade purchases yet.</p>
+            <a asp-controller="Internship" asp-action="MyInternships" class="btn btn-primary">
+                Upgrade to Premium
+            </a>
+        </div>
+    }
+
+    <a asp-controller="Internship" asp-action="MyInternships" class="btn btn-secondary mt-3">
+        ← Back to My Internships
+    </a>
+</div>

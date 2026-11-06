@@ -1,0 +1,178 @@
+﻿@{
+    ViewData["Title"] = "Admin Login - HireNest";
+}
+
+<style>
+    .admin-login-page {
+        min-height: 100vh;
+        background: radial-gradient(700px 400px at 50% 30%, rgba(245,158,11,0.06), transparent 60%), #0B1220;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4rem 1rem;
+    }
+
+    .admin-badge {
+        background: rgba(245,158,11,.12);
+        border: 1px solid rgba(245,158,11,.45);
+        color: #FBBF24;
+        border-radius: 50px;
+        padding: .35rem .9rem;
+        font-size: .75rem;
+        font-weight: 700;
+    }
+
+    .admin-card {
+        background: rgba(15,23,42,.5);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 16px;
+        padding: 2rem;
+    }
+
+    .admin-label {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #94A3B8;
+        margin-bottom: .4rem;
+        display: block;
+    }
+
+    .admin-input {
+        width: 100%;
+        background: rgba(148,163,184,.06);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #E2E8F0;
+        border-radius: 10px;
+        padding: .85rem 1rem;
+        font-size: .95rem;
+    }
+
+        .admin-input::placeholder {
+            color: #475569;
+        }
+
+        .admin-input:focus {
+            outline: none;
+            border-color: #F59E0B;
+            box-shadow: 0 0 0 3px rgba(245,158,11,.15);
+        }
+
+    .btn-amber-big {
+        width: 100%;
+        background: #F59E0B;
+        color: #0B1220;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        padding: .9rem;
+        font-size: 1rem;
+        transition: all .2s;
+    }
+
+        .btn-amber-big:hover {
+            background: #D97706;
+            color: #0B1220;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245,158,11,.3);
+        }
+
+    .link-gray {
+        color: #64748B;
+        text-decoration: none;
+        font-size: .85rem;
+    }
+
+        .link-gray:hover {
+            color: #CBD5E1;
+        }
+
+    .demo-hint {
+        font-size: .75rem;
+        color: #64748B;
+        margin-top: .4rem;
+    }
+
+        .demo-hint span {
+            color: #60A5FA;
+        }
+
+    /* Dark error modal */
+    .modal-content.admin-modal {
+        background: #0F1A2E;
+        border: 1px solid rgba(245,158,11,.4);
+        border-radius: 16px;
+        color: #E2E8F0;
+    }
+
+    .admin-modal .modal-header {
+        border-bottom: 1px solid rgba(148,163,184,.15);
+    }
+
+    .admin-modal .modal-footer {
+        border-top: 1px solid rgba(148,163,184,.15);
+    }
+</style>
+
+<div class="admin-login-page">
+    <div style="max-width: 420px; width: 100%;">
+        <!-- Logo + Badge -->
+        <div class="text-center mb-3 d-flex align-items-center justify-content-center gap-2 flex-wrap">
+            <span class="fw-bold" style="font-size: 1.5rem; color: #fff;">Hire<span style="color: #3B82F6;">Nest</span></span>
+            <span class="admin-badge"><i class="bi bi-lock-fill me-1"></i>Admin Access Only</span>
+        </div>
+        <h1 class="text-center fw-bold mb-1" style="color: #fff; font-size: 1.9rem;">Admin Portal</h1>
+        <p class="text-center mb-4" style="color: #94A3B8; font-size: .9rem;">Restricted to authorized administrators</p>
+
+        <!-- Form Card -->
+        <div class="admin-card">
+            <form asp-action="AdminLogin" method="post">
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    <label class="admin-label">Admin Email</label>
+                    <input type="email" name="email" class="admin-input" placeholder="admin@hirenest.com" required />
+                </div>
+                <div class="mb-2">
+                    <label class="admin-label">Password</label>
+                    <input type="password" name="password" class="admin-input" placeholder="admin123" required />
+                    <div class="demo-hint">Demo: <span>admin123</span></div>
+                </div>
+                <button type="submit" class="btn-amber-big mt-3">Access Admin Panel</button>
+            </form>
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-action="Login" class="link-gray">← Back to regular login</a>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ ADMIN ERROR POPUP MODAL (Dark Restyled) -->
+<div class="modal fade" id="adminErrorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content admin-modal">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" style="color: #FBBF24;">⚠️ Access Denied</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <p class="mb-0 fs-6" id="adminErrorMessageText"></p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-sm fw-bold px-4" style="background: #F59E0B; color: #0B1220;" data-bs-dismiss="modal">Try Again</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ SCRIPT TO AUTO-SHOW POPUP IF THERE IS AN ERROR -->
+@if (!ViewData.ModelState.IsValid)
+{
+    var errorMessage = ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).FirstOrDefault();
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById('adminErrorMessageText').innerText = "@errorMessage.Replace("\"", "\\\"")";
+            var adminErrorModal = new bootstrap.Modal(document.getElementById('adminErrorModal'));
+            adminErrorModal.show();
+        });
+    </script>
+}

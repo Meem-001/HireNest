@@ -1,0 +1,137 @@
+﻿@model IEnumerable<InternshipManagementSystem.Models.Application>
+@{
+    ViewData["Title"] = "Received Applications";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">📋 Received Applications</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Student</th>
+                        <th>Email</th>
+                        <th>Internship</th>
+                        <th>Resume</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in Model)
+                    {
+                        <tr>
+                            <td><strong>@app.StudentName</strong></td>
+                            <td>@app.StudentEmail</td>
+                            <td>@app.InternshipTitle</td>
+
+                            <!-- ✅ NEW: Resume Download Column -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(app.ResumeFileName))
+                                {
+                                    <a href="~/uploads/resumes/@app.ResumeFileName"
+                                       target="_blank"
+                                       class="btn btn-sm btn-outline-primary">
+                                        📄 View
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No file</span>
+                                }
+                            </td>
+
+                            <td>
+                                <span class="badge @(app.Status == "Accepted" ? "bg-success" : app.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark")">
+                                    @app.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (app.Status == "Pending")
+                                {
+                                    <form asp-action="UpdateStatus" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="applicationId" value="@app.Id" />
+
+                                        <!-- Feedback Input -->
+                                        <textarea name="feedback" class="form-control form-control-sm mb-2"
+                                      rows="2" placeholder="Leave feedback for the student (optional)..."></textarea>
+
+                                        <div class="d-flex gap-1">
+                                            <!-- The 'name' and 'value' attributes on the buttons handle the status -->
+                                            <button type="submit" name="status" value="Accepted" class="btn btn-sm btn-success w-100">Accept</button>
+                                            <button type="submit" name="status" value="Rejected" class="btn btn-sm btn-danger w-100">Reject</button>
+                                        </div>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge @(app.Status == "Accepted" ? "bg-success" : "bg-danger")">
+                                        @app.Status
+                                    </span>
+                                }
+                            </td>
+                               
+                                
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">No applications received yet.</div>
+    }
+
+    <!-- Chart Section (Moved to separate row for better layout) -->
+    <div class="row mt-5 mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom-0">
+                    <h5 class="mb-0 text-primary">📊 Application Status Overview</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: @Html.Raw(ViewBag.ChartLabels ?? "[]"),
+                datasets: [{
+                    data: @Html.Raw(ViewBag.ChartData ?? "[]"),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+    </script>
+</div>

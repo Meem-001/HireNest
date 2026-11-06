@@ -1,0 +1,177 @@
+﻿@model InternshipManagementSystem.Models.Internship
+@{
+    ViewData["Title"] = "Edit Internship";
+}
+
+<style>
+    .post-page {
+        background: #0B1220;
+        min-height: 100vh;
+        padding: 3rem 0 4rem;
+        color: #E2E8F0;
+    }
+
+    .post-label {
+        color: #FBBF24;
+        letter-spacing: 2px;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .post-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 16px;
+        padding: 2.5rem;
+    }
+
+    .form-label-dark {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #94A3B8;
+        margin-bottom: .4rem;
+        display: block;
+    }
+
+    .form-input-dark {
+        width: 100%;
+        background: rgba(148,163,184,.06);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #E2E8F0;
+        border-radius: 10px;
+        padding: .85rem 1rem;
+        font-size: .95rem;
+    }
+
+        .form-input-dark::placeholder {
+            color: #64748B;
+        }
+
+        .form-input-dark:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+        }
+
+    select.form-input-dark option {
+        background: #0B1220;
+        color: #E2E8F0;
+    }
+
+    .btn-blue-big {
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: .9rem 1.6rem;
+        width: 100%;
+        transition: all .2s;
+        font-size: 1rem;
+    }
+
+        .btn-blue-big:hover {
+            background: #1D4ED8;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37,99,235,.35);
+        }
+
+    .btn-back {
+        background: rgba(148,163,184,.08);
+        color: #CBD5E1;
+        border: 1px solid rgba(148,163,184,.25);
+        border-radius: 10px;
+        font-weight: 600;
+        padding: .5rem 1.2rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-back:hover {
+            background: rgba(148,163,184,.15);
+            color: #fff;
+        }
+
+    .help-text {
+        font-size: .75rem;
+        color: #64748B;
+        margin-top: .3rem;
+    }
+</style>
+
+<section class="post-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="post-label mb-2"><i class="bi bi-pencil-fill me-1"></i>Company Portal / Edit</div>
+                <h1 class="fw-bold mb-1" style="color: #fff; font-size: 2rem;">Edit Internship</h1>
+                <p class="mb-4" style="color: #94A3B8;">Update your posted internship details.</p>
+
+                <div class="post-card">
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CompanyId" />
+                        <input type="hidden" asp-for="CreatedAt" />
+
+                        <div class="mb-3">
+                            <label class="form-label-dark">Internship Title</label>
+                            <input type="text" asp-for="Title" class="form-input-dark" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-dark">Description</label>
+                            <textarea asp-for="Description" class="form-input-dark" rows="4" required></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Required Skills</label>
+                                <input type="text" asp-for="RequiredSkills" class="form-input-dark" required />
+                                <div class="help-text">Separate skills with commas</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Location</label>
+                                <input type="text" asp-for="Location" class="form-input-dark" required />
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Duration</label>
+                                <input type="text" asp-for="Duration" class="form-input-dark" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Salary (in Taka ৳)</label>
+                                <input type="text" asp-for="Salary" class="form-input-dark" placeholder="৳25,000/mo" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Job Type</label>
+                                <select asp-for="JobType" class="form-input-dark">
+                                    <option value="Onsite">Onsite</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Closing Date</label>
+                                <input type="date" asp-for="ClosingDate" class="form-input-dark" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-blue-big mt-2"><i class="bi bi-check-circle me-2"></i>Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-action="MyInternships" class="btn-back">← Back to My Internships</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

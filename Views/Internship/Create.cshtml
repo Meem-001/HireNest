@@ -1,0 +1,236 @@
+﻿@model InternshipManagementSystem.Models.Internship
+@{
+    ViewData["Title"] = "Post Internship";
+    int postsRemaining = ViewBag.PostsRemaining ?? 0;
+}
+
+<style>
+    .post-page {
+        background: #0B1220;
+        min-height: 100vh;
+        padding: 3rem 0 4rem;
+        color: #E2E8F0;
+    }
+
+    .post-label {
+        color: #FBBF24;
+        letter-spacing: 2px;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .post-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 16px;
+        padding: 2.5rem;
+    }
+
+    .form-label-dark {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #94A3B8;
+        margin-bottom: .4rem;
+        display: block;
+    }
+
+    .form-input-dark {
+        width: 100%;
+        background: rgba(148,163,184,.06);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #E2E8F0;
+        border-radius: 10px;
+        padding: .85rem 1rem;
+        font-size: .95rem;
+    }
+
+        .form-input-dark::placeholder {
+            color: #64748B;
+        }
+
+        .form-input-dark:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+        }
+
+    select.form-input-dark option {
+        background: #0B1220;
+        color: #E2E8F0;
+    }
+
+    .btn-blue-big {
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: .9rem 1.6rem;
+        width: 100%;
+        transition: all .2s;
+        font-size: 1rem;
+    }
+
+        .btn-blue-big:hover {
+            background: #1D4ED8;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37,99,235,.35);
+        }
+
+    .btn-back {
+        background: rgba(148,163,184,.08);
+        color: #CBD5E1;
+        border: 1px solid rgba(148,163,184,.25);
+        border-radius: 10px;
+        font-weight: 600;
+        padding: .5rem 1.2rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-back:hover {
+            background: rgba(148,163,184,.15);
+            color: #fff;
+        }
+
+    .posts-banner {
+        background: rgba(245,158,11,.08);
+        border: 1px solid rgba(245,158,11,.4);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .posts-banner-low {
+        background: rgba(248,113,113,.08);
+        border: 1px solid rgba(248,113,113,.4);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .btn-upgrade {
+        background: #F59E0B;
+        color: #0B1220;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        padding: .5rem 1rem;
+        text-decoration: none;
+        font-size: .85rem;
+    }
+
+        .btn-upgrade:hover {
+            background: #D97706;
+            color: #0B1220;
+        }
+
+    .help-text {
+        font-size: .75rem;
+        color: #64748B;
+        margin-top: .3rem;
+    }
+</style>
+
+<section class="post-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="post-label mb-2"><i class="bi bi-briefcase-fill me-1"></i>Company Portal</div>
+                <h1 class="fw-bold mb-1" style="color: #fff; font-size: 2rem;">Post New Internship</h1>
+                <p class="mb-4" style="color: #94A3B8;">Reach thousands of talented students.</p>
+
+                @if (postsRemaining <= 1 && postsRemaining > 0)
+                {
+                    <div class="posts-banner-low d-flex justify-content-between align-items-center flex-wrap">
+                        <div style="color: #FCA5A5;">
+                            <strong>⚠️ Low posts:</strong> Only <span class="badge" style="background: rgba(248,113,113,.2); color: #FCA5A5; border: 1px solid rgba(248,113,113,.4);">@postsRemaining</span> post remaining.
+                        </div>
+                        <a asp-controller="Payment" asp-action="Checkout" class="btn-upgrade">⚡ Upgrade to Premium</a>
+                    </div>
+                }
+                else if (postsRemaining == 0)
+                {
+                    <div class="posts-banner-low d-flex justify-content-between align-items-center flex-wrap">
+                        <div style="color: #FCA5A5;">
+                            <strong>⛔ Out of posts!</strong> Upgrade to continue posting.
+                        </div>
+                        <a asp-controller="Payment" asp-action="Checkout" class="btn-upgrade">⚡ Upgrade to Premium</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="posts-banner d-flex justify-content-between align-items-center">
+                        <div style="color: #FBBF24;">
+                            <strong>📊 Posts Remaining:</strong>
+                            <span class="badge" style="background: rgba(245,158,11,.2); color: #FBBF24; border: 1px solid rgba(245,158,11,.4);">@postsRemaining</span>
+                        </div>
+                        <a asp-controller="Payment" asp-action="Checkout" class="btn-upgrade" style="background: rgba(148,163,184,.1); color: #CBD5E1;">⚡ Upgrade to Premium</a>
+                    </div>
+                }
+
+                <div class="post-card">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label-dark">Internship Title</label>
+                            <input type="text" asp-for="Title" class="form-input-dark" placeholder="e.g. Software Engineering Intern" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label-dark">Description</label>
+                            <textarea asp-for="Description" class="form-input-dark" rows="4" placeholder="Describe the role, responsibilities, and learning outcomes..." required></textarea>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Required Skills</label>
+                                <input type="text" asp-for="RequiredSkills" class="form-input-dark" placeholder="React, Node.js, SQL" required />
+                                <div class="help-text">Separate skills with commas</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Location</label>
+                                <input type="text" asp-for="Location" class="form-input-dark" placeholder="e.g. Gulshan, Dhaka" required />
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Duration</label>
+                                <input type="text" asp-for="Duration" class="form-input-dark" placeholder="e.g. 3 Months" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Salary (in Taka ৳)</label>
+                                <input type="text" asp-for="Salary" class="form-input-dark" placeholder="৳25,000/mo" value="৳25,000/mo" />
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Job Type</label>
+                                <select asp-for="JobType" class="form-input-dark">
+                                    <option value="Onsite">Onsite</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Hybrid" selected>Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label-dark">Closing Date</label>
+                                <input type="date" asp-for="ClosingDate" class="form-input-dark" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-blue-big mt-2"><i class="bi bi-broadcast me-2"></i>Post Internship</button>
+                    </form>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-action="MyInternships" class="btn-back">← Back to My Internships</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

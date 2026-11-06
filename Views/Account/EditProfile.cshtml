@@ -1,0 +1,193 @@
+﻿@model InternshipManagementSystem.Models.User
+@{
+    ViewData["Title"] = "Edit Profile";
+    var userRole = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @if (userRole == "Student")
+            {
+                <!-- ✅ STUDENT PROFILE -->
+                <div class="card shadow-lg border-0 mb-4">
+                    <div class="card-header bg-gradient text-white py-3" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                        <h4 class="mb-0">🎓 Student Profile</h4>
+                        <small>Build your professional profile to attract top companies</small>
+                    </div>
+                    <div class="card-body p-4">
+                        @if (TempData["Success"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show">
+                                ✅ @TempData["Success"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <form asp-action="EditProfile" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Section 1: Basic Info -->
+                            <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">📋 Basic Information</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Full Name</label>
+                                    <input type="text" asp-for="FullName" class="form-control" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Email</label>
+                                    <input type="email" value="@Model.Email" class="form-control" disabled />
+                                    <small class="text-muted">Email cannot be changed</small>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">🎯 Professional Bio</label>
+                                <textarea asp-for="Bio" class="form-control" rows="3" placeholder="Tell companies about yourself, your passion, and career goals..."></textarea>
+                                <small class="text-muted">This appears on your CV and applications</small>
+                            </div>
+
+                            <!-- Section 2: Contact & Links -->
+                            <h5 class="fw-bold text-primary mb-3 mt-4 border-bottom pb-2">📞 Contact & Professional Links</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">📱 Phone Number</label>
+                                    <input type="tel" asp-for="Phone" class="form-control" placeholder="+880 1XXX-XXXXXX" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">🔗 LinkedIn Profile</label>
+                                    <input type="url" asp-for="LinkedIn" class="form-control" placeholder="https://linkedin.com/in/yourname" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">💻 GitHub Profile</label>
+                                    <input type="url" asp-for="GitHub" class="form-control" placeholder="https://github.com/yourusername" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">🌐 Portfolio Website</label>
+                                    <input type="url" asp-for="Portfolio" class="form-control" placeholder="https://yourportfolio.com" />
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Skills & Education -->
+                            <h5 class="fw-bold text-primary mb-3 mt-4 border-bottom pb-2">🛠️ Skills & Education</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Your Skills (Comma separated)</label>
+                                <input type="text" asp-for="Skills" class="form-control" placeholder="e.g. C#, SQL, HTML, CSS, React, .NET" />
+                                <small class="text-muted">⚡ These skills are used to calculate your Internship Match %</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">🎓 Education</label>
+                                <textarea asp-for="Education" class="form-control" rows="3" placeholder="BSc in Computer Science&#10;University of XYZ (2022-2026)&#10;CGPA: 3.8/4.0"></textarea>
+                            </div>
+
+                            <!-- Section 4: Preferences -->
+                            <h5 class="fw-bold text-primary mb-3 mt-4 border-bottom pb-2">💼 Work Preferences</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Preferred Work Type</label>
+                                    <select asp-for="WorkPreference" class="form-select">
+                                        <option value="">Select preference</option>
+                                        <option value="Remote">Remote</option>
+                                        <option value="On-site">On-site</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                        <option value="Any">Any</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Availability</label>
+                                    <input type="text" asp-for="Availability" class="form-control" placeholder="e.g. Immediately, Summer 2026, Part-time" />
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-lg w-100 mt-4" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none;">
+                                💾 Save Profile
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+            else if (userRole == "Company")
+            {
+                <!-- ✅ COMPANY PROFILE -->
+                <div class="card shadow-lg border-0 mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0">🏢 Company Profile</h4>
+                        <small>Attract top talent by showcasing your company</small>
+                    </div>
+                    <div class="card-body p-4">
+                        @if (TempData["Success"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show">
+                                ✅ @TempData["Success"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        }
+
+                        <form asp-action="EditProfile" method="post">
+                            @Html.AntiForgeryToken()
+
+                            <!-- Section 1: Company Info -->
+                            <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">🏢 Company Information</h5>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Company Name</label>
+                                    <input type="text" asp-for="FullName" class="form-control" placeholder="Your Company Name" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Industry</label>
+                                    <input type="text" asp-for="Industry" class="form-control" placeholder="e.g. Technology, Finance, Healthcare" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">📍 Location</label>
+                                    <input type="text" asp-for="Location" class="form-control" placeholder="e.g. Dhaka, Bangladesh" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">📱 Contact Phone</label>
+                                    <input type="tel" asp-for="Phone" class="form-control" placeholder="+880 1XXX-XXXXXX" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">🌐 Company Website</label>
+                                <input type="url" asp-for="Website" class="form-control" placeholder="https://yourcompany.com" />
+                            </div>
+
+                            <!-- Section 2: Description -->
+                            <h5 class="fw-bold text-primary mb-3 mt-4 border-bottom pb-2">📝 About Your Company</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Company Description</label>
+                                <textarea asp-for="CompanyDescription" class="form-control" rows="4" placeholder="Tell students about your company culture, mission, and what makes you a great place to intern..."></textarea>
+                            </div>
+
+                            <!-- Section 3: Specializations -->
+                            <h5 class="fw-bold text-primary mb-3 mt-4 border-bottom pb-2">🎯 Specializations</h5>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Company Specializations (Comma separated)</label>
+                                <input type="text" asp-for="Skills" class="form-control" placeholder="e.g. Web Development, Mobile Apps, AI/ML, Cloud Computing" />
+                                <small class="text-muted">List your company's areas of expertise</small>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
+                                💾 Update Company Profile
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

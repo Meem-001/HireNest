@@ -1,0 +1,244 @@
+﻿@model InternshipManagementSystem.Models.User
+@{
+    ViewData["Title"] = "Company Registration";
+}
+
+<style>
+    .reg-page {
+        background: radial-gradient(800px 500px at 30% 40%, rgba(59,130,246,0.12), transparent 60%), #0B1220;
+        min-height: 100vh;
+        color: #E2E8F0;
+        display: flex;
+        align-items: center;
+    }
+
+    .reg-badge {
+        border: 1px solid rgba(148,163,184,.25);
+        background: rgba(148,163,184,.06);
+        color: #CBD5E1;
+        border-radius: 50px;
+        padding: .4rem 1rem;
+        font-size: .8rem;
+        font-weight: 600;
+    }
+
+    .reg-input {
+        width: 100%;
+        background: rgba(148,163,184,.06);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #E2E8F0;
+        border-radius: 10px;
+        padding: .85rem 1rem;
+        font-size: .95rem;
+    }
+
+        .reg-input::placeholder {
+            color: #64748B;
+        }
+
+        .reg-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+        }
+
+    .reg-label {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #94A3B8;
+        margin-bottom: .4rem;
+        display: block;
+    }
+
+    .btn-blue {
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        padding: .9rem 1.6rem;
+        transition: all .2s;
+        width: 100%;
+    }
+
+        .btn-blue:hover {
+            background: #1D4ED8;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37,99,235,.35);
+        }
+
+    .perk-row {
+        display: flex;
+        align-items: center;
+        gap: .8rem;
+        margin-bottom: 1rem;
+        color: #CBD5E1;
+        font-size: .9rem;
+    }
+
+    .perk-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: rgba(148,163,184,.08);
+        border: 1px solid rgba(148,163,184,.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .link-blue {
+        color: #60A5FA;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .link-blue:hover {
+            color: #93C5FD;
+            text-decoration: underline;
+        }
+
+    .show-btn {
+        background: none;
+        border: none;
+        color: #64748B;
+        font-size: .75rem;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+        .show-btn:hover {
+            color: #CBD5E1;
+        }
+
+    .validation-summary-valid {
+        display: none;
+    }
+
+    .validation-summary-errors {
+        color: #F87171;
+        background: rgba(248,113,113,.08);
+        border: 1px solid rgba(248,113,113,.35);
+        border-radius: 10px;
+        padding: .6rem 1rem;
+        font-size: .85rem;
+        margin-bottom: 1rem;
+    }
+
+    .pwd-error {
+        display: none;
+        color: #F87171;
+        font-size: .8rem;
+        margin-top: .4rem;
+    }
+
+    select.reg-input option {
+        background: #0B1220;
+        color: #E2E8F0;
+    }
+</style>
+
+<div class="reg-page">
+    <div class="container py-5">
+        <div class="row align-items-center g-5">
+
+            <!-- Left: Brand Panel -->
+            <div class="col-lg-6 text-center">
+                <h2 class="fw-bold mb-4" style="font-size: 1.8rem; color: #fff;">Hire<span style="color: #3B82F6;">Nest</span></h2>
+                <h1 class="fw-bold mb-3" style="color: #fff; font-size: 2.2rem; line-height: 1.25;">Hire top student<br />talent, fast.</h1>
+                <p style="color: #94A3B8; max-width: 420px; margin: 0 auto 2rem auto;">Post internships and let HireNest match you with the best-fit candidates automatically.</p>
+
+                <div style="max-width: 380px; margin: 0 auto; text-align: left;">
+                    <div class="perk-row"><span class="perk-icon">🆓</span> 5 free posts on the Free plan</div>
+                    <div class="perk-row"><span class="perk-icon">🚀</span> Premium plan: 50 posts for $199</div>
+                    <div class="perk-row"><span class="perk-icon">🤝</span> AI-powered candidate matching</div>
+                    <div class="perk-row"><span class="perk-icon">📊</span> Analytics on applicant profiles</div>
+                </div>
+            </div>
+
+            <!-- Right: Form -->
+            <div class="col-lg-6">
+                <div style="max-width: 460px; margin-left: auto;">
+                    <span class="reg-badge">🏢 Company Registration</span>
+                    <h2 class="fw-bold mt-3 mb-1" style="color: #fff;">Register your company</h2>
+                    <p class="mb-4" style="color: #94A3B8; font-size: .9rem;">Start posting internships for free today.</p>
+
+                    <div asp-validation-summary="All"></div>
+
+                    <form asp-action="RegisterCompany" method="post" id="regForm">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="reg-label">Company Name</label>
+                            <input asp-for="FullName" class="reg-input" placeholder="Acme Inc." required />
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-7">
+                                <label class="reg-label">Industry</label>
+                                <input type="text" name="industry" class="reg-input" placeholder="Software, Fintech..." />
+                            </div>
+                            <div class="col-5">
+                                <label class="reg-label">Company Size</label>
+                                <select name="companySize" class="reg-input">
+                                    <option value="1-50" selected>1-50</option>
+                                    <option value="51-200">51-200</option>
+                                    <option value="201-500">201-500</option>
+                                    <option value="500+">500+</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="reg-label">Website (optional)</label>
+                            <input type="url" name="website" class="reg-input" placeholder="https://company.com" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="reg-label">Work Email</label>
+                            <input asp-for="Email" type="email" class="reg-input" placeholder="hr@company.com" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="reg-label">Password</label>
+                            <div style="position: relative;">
+                                <input asp-for="PasswordHash" type="password" id="pwd" class="reg-input" placeholder="Min. 6 characters" required minlength="6" />
+                                <button type="button" class="show-btn" onclick="togglePwd('pwd', this)">Show</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="reg-label">Confirm Password</label>
+                            <input type="password" name="confirmPassword" id="cpwd" class="reg-input" placeholder="Repeat password" required />
+                            <div class="pwd-error" id="pwdError">Passwords do not match.</div>
+                        </div>
+
+                        <button type="submit" class="btn-blue">Create Company Account</button>
+                    </form>
+
+                    <div class="text-center mt-4" style="font-size: .85rem; color: #94A3B8;">
+                        Already have an account? <a asp-action="Login" asp-route-role="Company" class="link-blue">Sign In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePwd(id, btn) {
+        var el = document.getElementById(id);
+        if (el.type === "password") { el.type = "text"; btn.textContent = "Hide"; }
+        else { el.type = "password"; btn.textContent = "Show"; }
+    }
+    document.getElementById("regForm").addEventListener("submit", function (e) {
+        var p = document.getElementById("pwd").value;
+        var c = document.getElementById("cpwd").value;
+        if (p !== c) { e.preventDefault(); document.getElementById("pwdError").style.display = "block"; }
+    });
+</script>

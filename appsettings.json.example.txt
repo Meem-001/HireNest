@@ -1,0 +1,16 @@
+﻿   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=localhost;Database=YourDB;Uid=root;Pwd=yourpassword;"
+     },
+     "SmtpSettings": {
+       "Server": "smtp.gmail.com",
+       "Port": 587,
+       "SenderName": "Internship App",
+       "SenderEmail": "your-email@gmail.com",
+       "Username": "your-email@gmail.com",
+       "Password": "your-app-password-here"
+     },
+     "Gemini": {
+       "ApiKey": "YOUR_GEMINI_API_KEY_HERE"
+     }
+   }

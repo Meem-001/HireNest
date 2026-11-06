@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <h2 class="text-center mb-4">Upgrade Your Posting Limit</h2>
+
+            <div class="card shadow-lg border-0 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-5 bg-primary text-white p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <h4 class="fw-bold mb-3">Order Summary</h4>
+                            <div class="border-bottom border-white-50 pb-3 mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>@ViewBag.Package Package</span>
+                                    <span class="fw-bold">$49.00</span>
+                                </div>
+                                <small class="text-white-50">+5 Additional Internship Posts</small>
+                            </div>
+                            <div class="border-bottom border-white-50 pb-3 mb-3">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Platform Fee</span>
+                                    <span class="fw-bold">$1.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between fw-bold fs-5">
+                                <span>Total</span>
+                                <span>$50.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7 p-4 bg-white">
+                        <h5 class="mb-3 text-dark">💳 Payment Details</h5>
+                        <form asp-action="Checkout" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="package" value="@ViewBag.Package" />
+                            <input type="hidden" name="amount" value="50.00" />
+
+                            <div class="mb-3">
+                                <label class="form-label text-muted small fw-bold">CARD NUMBER</label>
+                                <div class="input-group">
+                                    <input type="text" name="cardNumber" class="form-control form-control-lg" placeholder="0000 0000 0000 0000" required />
+                                    <span class="input-group-text bg-light border-start-0">🔒</span>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label text-muted small fw-bold">EXPIRY DATE</label>
+                                    <input type="text" name="cardExpiry" class="form-control form-control-lg" placeholder="MM / YY" required />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-muted small fw-bold">CVV</label>
+                                    <input type="text" name="cardCvv" class="form-control form-control-lg" placeholder="123" required />
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-muted small fw-bold">CARDHOLDER NAME</label>
+                                <input type="text" class="form-control form-control-lg" placeholder="John Doe" required />
+                            </div>
+
+                            <button type="submit" class="btn btn-dark btn-lg w-100 fw-bold py-3">
+                                Pay $50.00 Securely
+                            </button>
+
+                            <p class="text-center text-muted small mt-3 mb-0">
+                                🔒 This is a secure mock payment environment.
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

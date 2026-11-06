@@ -1,0 +1,376 @@
+﻿@model IEnumerable<InternshipManagementSystem.Models.Internship>
+@{
+    ViewData["Title"] = "Browse Internships";
+    int totalItems = ViewBag.TotalItems != null ? (int)ViewBag.TotalItems : Model.Count();
+}
+
+<style>
+    .bi-dark {
+        background: #0B1220;
+    }
+
+    .dark-input {
+        background: rgba(148,163,184,.06);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #E2E8F0;
+        border-radius: 10px;
+        padding: .7rem 1rem;
+        font-size: .9rem;
+    }
+
+        .dark-input::placeholder {
+            color: #64748B;
+        }
+
+        .dark-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+        }
+
+    select.dark-input option {
+        background: #0B1220;
+        color: #E2E8F0;
+    }
+
+    .btn-blue-sm {
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: .85rem;
+        padding: .55rem 1.1rem;
+        transition: all .2s;
+        display: inline-block;
+        text-align: center;
+    }
+
+        .btn-blue-sm:hover {
+            background: #1D4ED8;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+    .unlock-banner {
+        background: rgba(59,130,246,.08);
+        border: 1px solid rgba(59,130,246,.3);
+        border-radius: 12px;
+    }
+
+    .int-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 14px;
+        transition: all .25s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .int-card:hover {
+            border-color: rgba(59,130,246,.5);
+            transform: translateY(-4px);
+        }
+
+    .match-pill {
+        color: #34D399;
+        background: rgba(52,211,153,.1);
+        border: 1px solid rgba(52,211,153,.35);
+        border-radius: 50px;
+        font-size: .75rem;
+        font-weight: 600;
+        padding: .3rem .8rem;
+        white-space: nowrap;
+    }
+
+    .lock-pill {
+        color: #64748B;
+        background: rgba(148,163,184,.08);
+        border: 1px solid rgba(148,163,184,.2);
+        border-radius: 50px;
+        font-size: .75rem;
+        font-weight: 600;
+        padding: .3rem .8rem;
+        white-space: nowrap;
+    }
+
+    .type-badge {
+        color: #60A5FA;
+        background: rgba(59,130,246,.1);
+        border: 1px solid rgba(59,130,246,.3);
+        border-radius: 6px;
+        font-size: .72rem;
+        font-weight: 600;
+        padding: .2rem .55rem;
+    }
+
+    .skill-tag {
+        background: rgba(148,163,184,.1);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #CBD5E1;
+        border-radius: 6px;
+        font-size: .75rem;
+        padding: .25rem .6rem;
+    }
+
+    .salary-text {
+        color: #34D399;
+        font-weight: 700;
+        font-size: .95rem;
+    }
+
+    .company-logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: rgba(59,130,246,.12);
+        border: 1px solid rgba(59,130,246,.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #60A5FA;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .meta-small {
+        color: #94A3B8;
+        font-size: .82rem;
+    }
+
+    .alert-dark-ok {
+        background: rgba(52,211,153,.1);
+        border: 1px solid rgba(52,211,153,.35);
+        color: #34D399;
+        border-radius: 10px;
+    }
+
+    .pagination .page-link {
+        background: transparent;
+        border: 1px solid rgba(148,163,184,.2);
+        color: #94A3B8;
+        border-radius: 8px !important;
+        margin: 0 3px;
+    }
+
+        .pagination .page-link:hover {
+            background: rgba(148,163,184,.1);
+            color: #fff;
+        }
+
+    .pagination .page-item.active .page-link {
+        background: #2563EB;
+        border-color: #2563EB;
+        color: #fff;
+    }
+
+    .pagination .page-item.disabled .page-link {
+        opacity: .4;
+        background: transparent;
+    }
+</style>
+
+<!-- ===== HEADER + SEARCH ===== -->
+<section class="bi-dark" style="padding: 3.5rem 0 2rem; border-bottom: 1px solid rgba(148,163,184,.1);">
+    <div class="container">
+        <div class="fw-bold text-uppercase" style="color: #60A5FA; letter-spacing: 2px; font-size: .75rem;">Browse Internships</div>
+        <h1 class="fw-bold mt-2 mb-2" style="color: #fff; font-size: 2.2rem;">@totalItems opportunities available</h1>
+        <p class="mb-4" style="color: #94A3B8;">
+            @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+            {
+                <text>Your personalized skill-match scores are shown on every card.</text>
+            }
+            else
+            {
+                <text>Sign up free to see your skill match % and apply in one click.</text>
+            }
+        </p>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-dark-ok p-3 mb-3">@TempData["Success"]</div>
+        }
+
+        <form asp-action="Index" method="get" class="row g-2">
+            <div class="col-md-5">
+                <div style="position: relative;">
+                    <i class="bi bi-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #64748B;"></i>
+                    <input type="text" name="searchString" class="dark-input w-100" style="padding-left: 40px;"
+                           placeholder="Search by title, company, skill, or location..."
+                           value="@ViewBag.CurrentSearch" />
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="filterLocation" class="dark-input w-100">
+                    <option value="">All Locations</option>
+                    @foreach (var loc in ViewBag.Locations ?? new List<string>())
+                    {
+                        <option value="@loc" selected="@(loc == ViewBag.CurrentLocation)">@loc</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="filterDuration" class="dark-input w-100">
+                    <option value="">All Durations</option>
+                    @foreach (var dur in ViewBag.Durations ?? new List<string>())
+                    {
+                        <option value="@dur" selected="@(dur == ViewBag.CurrentDuration)">@dur</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="sortBy" class="dark-input w-100">
+                    <option value="Date" selected="@(ViewBag.CurrentSort == "Date")">Newest First</option>
+                    <option value="Oldest" selected="@(ViewBag.CurrentSort == "Oldest")">Oldest First</option>
+                    <option value="Title" selected="@(ViewBag.CurrentSort == "Title")">Title (A-Z)</option>
+                    <option value="Duration" selected="@(ViewBag.CurrentSort == "Duration")">Duration</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn-blue-sm w-100"><i class="bi bi-search"></i></button>
+            </div>
+        </form>
+
+        @if (!string.IsNullOrEmpty(ViewBag.CurrentSearch) || !string.IsNullOrEmpty(ViewBag.CurrentLocation) || !string.IsNullOrEmpty(ViewBag.CurrentDuration))
+        {
+            <div class="mt-3">
+                <a asp-action="Index" class="btn-blue-sm" style="background: rgba(148,163,184,.1); color: #CBD5E1;">Clear Filters</a>
+                <span class="ms-2" style="color: #64748B; font-size: .85rem;">Found @Model.Count() on this page</span>
+            </div>
+        }
+    </div>
+</section>
+
+<!-- ===== JOB CARDS ===== -->
+<section class="bi-dark" style="padding: 2.5rem 0 4rem;">
+    <div class="container">
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <div class="unlock-banner d-flex flex-wrap align-items-center justify-content-between p-3 px-4 mb-4">
+                <span style="color: #CBD5E1; font-size: .9rem;">Create a free account to unlock AI skill match scores and apply directly.</span>
+                <a asp-controller="Account" asp-action="Register" class="btn-blue-sm ms-3 text-decoration-none">Sign Up Free →</a>
+            </div>
+        }
+
+        @if (Model.Any())
+        {
+            <div class="row g-4">
+                @foreach (var item in Model)
+                {
+                    var matchScore = ViewBag.MatchScores?[item.Id] ?? 0;
+                    var companyInitial = !string.IsNullOrEmpty(item.CompanyName) && item.CompanyName.Length > 0 ? item.CompanyName[0].ToString().ToUpper() : "C";
+
+                    <div class="col-md-6">
+                        <div class="int-card h-100 p-4">
+                            <!-- Top row: Company logo + name + match pill -->
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="company-logo me-3">@companyInitial</div>
+                                    <div>
+                                        <h5 class="fw-bold mb-0" style="color: #fff;">@item.Title</h5>
+                                        <div class="meta-small">@(!string.IsNullOrEmpty(item.CompanyName) ? item.CompanyName : "Unknown Company")</div>
+                                    </div>
+                                </div>
+                                @if (User.Identity.IsAuthenticated && User.IsInRole("Student"))
+                                {
+                                    <span class="match-pill">🎯 @matchScore% match</span>
+                                }
+                                else
+                                {
+                                    <span class="lock-pill"><i class="bi bi-lock-fill me-1"></i>@matchScore% match</span>
+                                }
+                            </div>
+
+                            <!-- Meta row -->
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                                <span class="meta-small"><i class="bi bi-geo-alt me-1"></i>@item.Location</span>
+                                <span class="type-badge">@(!string.IsNullOrEmpty(item.JobType) ? item.JobType : "Hybrid")</span>
+                                <span class="type-badge">@item.Duration</span>
+                                @if (item.ApplicantCount > 0)
+                                {
+                                    <span class="meta-small"><i class="bi bi-people-fill me-1"></i>@item.ApplicantCount applicants</span>
+                                }
+                            </div>
+
+                            <!-- Description -->
+                            <p class="mb-3" style="color: #94A3B8; font-size: .9rem;">
+                                @(item.Description.Length > 140 ? item.Description.Substring(0, 140) + "..." : item.Description)
+                            </p>
+
+                            <!-- Skill chips -->
+                            <div class="d-flex flex-wrap gap-2 mb-4">
+                                @foreach (var skill in item.RequiredSkills.Split(',', StringSplitOptions.RemoveEmptyEntries).Take(4))
+                                {
+                                    <span class="skill-tag">@skill.Trim()</span>
+                                }
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="d-flex justify-content-between align-items-center pt-3 mt-auto" style="border-top: 1px solid rgba(148,163,184,.12);">
+                                <div>
+                                    @if (!string.IsNullOrEmpty(item.Salary))
+                                    {
+                                        <div class="salary-text">@item.Salary</div>
+                                    }
+                                    @if (item.ClosingDate.HasValue)
+                                    {
+                                        <small class="meta-small">Closes @item.ClosingDate.Value.ToString("MMM dd")</small>
+                                    }
+                                </div>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn-blue-sm text-decoration-none">Apply Now →</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5" style="background: rgba(15,23,42,.6); border: 1px solid rgba(148,163,184,.15); border-radius: 14px;">
+                <div class="display-4 mb-3">🔍</div>
+                <h5 class="fw-bold" style="color: #fff;">No internships found</h5>
+                <p style="color: #94A3B8;">Try adjusting your search or filters.</p>
+                <a asp-action="Index" class="btn-blue-sm text-decoration-none">Clear All Filters</a>
+            </div>
+        }
+
+        <!-- ===== PAGINATION ===== -->
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(ViewBag.PageNumber == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-pageNumber="@(ViewBag.PageNumber - 1)"
+                           asp-route-searchString="@ViewBag.CurrentSearch"
+                           asp-route-filterLocation="@ViewBag.CurrentLocation"
+                           asp-route-filterDuration="@ViewBag.CurrentDuration"
+                           asp-route-sortBy="@ViewBag.CurrentSort">Previous</a>
+                    </li>
+
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-pageNumber="@i"
+                               asp-route-searchString="@ViewBag.CurrentSearch"
+                               asp-route-filterLocation="@ViewBag.CurrentLocation"
+                               asp-route-filterDuration="@ViewBag.CurrentDuration"
+                               asp-route-sortBy="@ViewBag.CurrentSort">@i</a>
+                        </li>
+                    }
+
+                    <li class="page-item @(ViewBag.PageNumber == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="Index"
+                           asp-route-pageNumber="@(ViewBag.PageNumber + 1)"
+                           asp-route-searchString="@ViewBag.CurrentSearch"
+                           asp-route-filterLocation="@ViewBag.CurrentLocation"
+                           asp-route-filterDuration="@ViewBag.CurrentDuration"
+                           asp-route-sortBy="@ViewBag.CurrentSort">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        }
+    </div>
+</section>

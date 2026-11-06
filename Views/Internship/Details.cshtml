@@ -1,0 +1,278 @@
+﻿@model InternshipManagementSystem.Models.InternshipDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var companyInitial = !string.IsNullOrEmpty(Model.CompanyName) && Model.CompanyName.Length > 0 ? Model.CompanyName[0].ToString().ToUpper() : "C";
+}
+
+<style>
+    .det-page {
+        background: #0B1220;
+        min-height: 100vh;
+        padding: 3rem 0 4rem;
+        color: #E2E8F0;
+    }
+
+    .det-card {
+        background: rgba(15,23,42,.6);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .company-logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: rgba(59,130,246,.12);
+        border: 1px solid rgba(59,130,246,.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #60A5FA;
+        font-weight: 700;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+    }
+
+    .type-badge {
+        color: #60A5FA;
+        background: rgba(59,130,246,.1);
+        border: 1px solid rgba(59,130,246,.3);
+        border-radius: 6px;
+        font-size: .72rem;
+        font-weight: 600;
+        padding: .2rem .55rem;
+    }
+
+    .skill-tag {
+        background: rgba(148,163,184,.1);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #CBD5E1;
+        border-radius: 6px;
+        font-size: .8rem;
+        padding: .35rem .8rem;
+    }
+
+    .match-pill {
+        color: #34D399;
+        background: rgba(52,211,153,.1);
+        border: 1px solid rgba(52,211,153,.35);
+        border-radius: 50px;
+        font-size: .85rem;
+        font-weight: 600;
+        padding: .4rem 1rem;
+        white-space: nowrap;
+    }
+
+    .section-title {
+        color: #60A5FA;
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .contact-box {
+        background: rgba(148,163,184,.05);
+        border: 1px solid rgba(148,163,184,.15);
+        border-radius: 12px;
+        padding: 1.2rem 1.5rem;
+    }
+
+    .btn-back {
+        background: rgba(148,163,184,.08);
+        color: #CBD5E1;
+        border: 1px solid rgba(148,163,184,.25);
+        border-radius: 10px;
+        font-weight: 600;
+        padding: .5rem 1.2rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-back:hover {
+            background: rgba(148,163,184,.15);
+            color: #fff;
+        }
+
+    .btn-apply {
+        background: #2563EB;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        padding: .9rem;
+        width: 100%;
+        font-size: 1rem;
+        transition: all .2s;
+    }
+
+        .btn-apply:hover {
+            background: #1D4ED8;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37,99,235,.35);
+        }
+
+    .file-input {
+        width: 100%;
+        background: rgba(148,163,184,.06);
+        border: 1px solid rgba(148,163,184,.2);
+        color: #E2E8F0;
+        border-radius: 10px;
+        padding: .7rem 1rem;
+        font-size: .9rem;
+    }
+
+        .file-input::file-selector-button {
+            background: rgba(59,130,246,.15);
+            color: #60A5FA;
+            border: 1px solid rgba(59,130,246,.35);
+            border-radius: 8px;
+            padding: .5rem 1rem;
+            margin-right: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+    .form-label-dark {
+        font-size: .8rem;
+        font-weight: 600;
+        color: #94A3B8;
+        margin-bottom: .4rem;
+        display: block;
+    }
+
+    .help-text {
+        font-size: .75rem;
+        color: #64748B;
+        margin-top: .3rem;
+    }
+
+    .role-note {
+        border-radius: 12px;
+        padding: 1rem;
+        text-align: center;
+        font-size: .9rem;
+    }
+
+    .alert-err {
+        background: rgba(248,113,113,.1);
+        border: 1px solid rgba(248,113,113,.35);
+        color: #F87171;
+        border-radius: 10px;
+    }
+
+    .alert-ok {
+        background: rgba(52,211,153,.1);
+        border: 1px solid rgba(52,211,153,.35);
+        color: #34D399;
+        border-radius: 10px;
+    }
+</style>
+
+<section class="det-page">
+    <div class="container" style="max-width: 900px;">
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-err p-3 mb-3"><strong>Error:</strong> @TempData["Error"]</div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-ok p-3 mb-3">@TempData["Success"]</div>
+        }
+
+        <a asp-action="Index" class="btn-back mb-4">← Back to Listings</a>
+
+        <div class="det-card mt-3">
+            <!-- ===== HEADER ===== -->
+            <div class="p-4">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="company-logo me-3">@companyInitial</div>
+                        <div>
+                            <h2 class="fw-bold mb-1" style="color: #fff;">@Model.Title</h2>
+                            <div style="color: #60A5FA; font-weight: 600; font-size: .95rem;">@Model.CompanyName</div>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mt-2" style="color: #94A3B8; font-size: .85rem;">
+                                <span><i class="bi bi-geo-alt me-1"></i>@Model.Location</span>
+                                <span class="type-badge">@(!string.IsNullOrEmpty(Model.JobType) ? Model.JobType : "Hybrid")</span>
+                                <span class="type-badge">@Model.Duration</span>
+                                @if (!string.IsNullOrEmpty(Model.Salary))
+                                {
+                                    <span style="color: #34D399; font-weight: 700;">@Model.Salary</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @if (ViewBag.MatchScore > 0)
+                    {
+                        <span class="match-pill">🎯 @ViewBag.MatchScore% Match</span>
+                    }
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid rgba(148,163,184,.12);"></div>
+
+            <!-- ===== BODY ===== -->
+            <div class="p-4">
+                <div class="section-title"><i class="bi bi-file-earmark-text me-2"></i>Job Description</div>
+                <p style="color: #CBD5E1; white-space: pre-line; line-height: 1.7;">@Model.Description</p>
+
+                <div class="section-title mt-4"><i class="bi bi-tools me-2"></i>Required Skills</div>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    @foreach (var skill in Model.RequiredSkills.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <span class="skill-tag">@skill.Trim()</span>
+                    }
+                </div>
+
+                <div class="contact-box d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                        <strong style="color: #fff;">Posted by:</strong> <span style="color: #CBD5E1;">@Model.CompanyName</span><br />
+                        <small style="color: #64748B;"><i class="bi bi-envelope me-1"></i>@Model.CompanyEmail</small>
+                    </div>
+                    <small style="color: #64748B;">Posted on: @Model.CreatedAt.ToString("MMM dd, yyyy")</small>
+                </div>
+            </div>
+
+            <div style="border-top: 1px solid rgba(148,163,184,.12);"></div>
+
+            <!-- ===== FOOTER / APPLY ===== -->
+            <div class="p-4">
+                @if (User.IsInRole("Student"))
+                {
+                    <form asp-controller="Application" asp-action="Apply" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="internshipId" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label-dark">📎 Attach Resume (Optional)</label>
+                            <input type="file" name="resume" class="file-input" accept=".pdf,.doc,.docx" />
+                            <div class="help-text">Supported: PDF, DOC, DOCX (Max 2MB)</div>
+                        </div>
+
+                        <button type="submit" class="btn-apply"><i class="bi bi-send-fill me-2"></i>Submit Application</button>
+                    </form>
+                }
+                else if (User.IsInRole("Company"))
+                {
+                    <div class="role-note" style="background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.3); color: #60A5FA;">
+                        <i class="bi bi-building me-2"></i>You are logged in as a Company. Students can apply through this page.
+                    </div>
+                }
+                else if (User.IsInRole("Admin"))
+                {
+                    <div class="role-note" style="background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.35); color: #FBBF24;">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Admin View: You can manage this internship from the Admin Panel.
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-apply" style="display: block; text-align: center; text-decoration: none;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login to Apply
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
