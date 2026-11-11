@@ -1,54 +1,44 @@
-﻿using Dapper;
+﻿using System.Linq;
 using InternshipManagementSystem.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InternshipManagementSystem.Data
 {
     public class CVRepository
     {
-        private readonly DbHelper _dbHelper;
+        private readonly AppDbContext _context;
 
-        public CVRepository(DbHelper dbHelper)
+        public CVRepository(AppDbContext context)
         {
-            _dbHelper = dbHelper;
+            _context = context;
         }
 
         public CV GetByStudentId(int studentId)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                // ✅ Explicitly select columns to avoid Dapper mapping issues
-                var sql = @"SELECT cv.Id, cv.StudentId, cv.Phone, cv.LinkedIn, cv.Skills, cv.Interests, 
-                                   cv.Objective, cv.Education, cv.Experience, cv.PhotoFileName,
-                                   u.FullName as StudentName, u.Email as StudentEmail 
-                           FROM CVs cv 
-                           JOIN Users u ON cv.StudentId = u.Id 
-                           WHERE cv.StudentId = @StudentId";
-
-                return connection.QueryFirstOrDefault<CV>(sql, new { StudentId = studentId });
-            }
+            return _context.Cvs.FirstOrDefault(cv => cv.StudentId == studentId);
         }
 
         public void SaveCV(CV cv)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var existing = GetByStudentId(cv.StudentId);
+            var existing = _context.Cvs.FirstOrDefault(c => c.StudentId == cv.StudentId);
 
-                if (existing == null)
-                {
-                    connection.Execute(@"INSERT INTO CVs (StudentId, Phone, LinkedIn, Skills, Interests, Objective, Education, Experience, PhotoFileName) 
-                                        VALUES (@StudentId, @Phone, @LinkedIn, @Skills, @Interests, @Objective, @Education, @Experience, @PhotoFileName)", cv);
-                }
-                else
-                {
-                    connection.Execute(@"UPDATE CVs SET 
-                                        Phone = @Phone, LinkedIn = @LinkedIn, 
-                                        Skills = @Skills, Interests = @Interests,
-                                        Objective = @Objective, Education = @Education, 
-                                        Experience = @Experience, PhotoFileName = @PhotoFileName
-                                        WHERE StudentId = @StudentId", cv);
-                }
+            if (existing == null)
+            {
+                _context.Cvs.Add(cv);
             }
+            else
+            {
+                existing.Phone = cv.Phone;
+                existing.LinkedIn = cv.LinkedIn;
+                existing.Skills = cv.Skills;
+                existing.Interests = cv.Interests;
+                existing.Objective = cv.Objective;
+                existing.Education = cv.Education;
+                existing.Experience = cv.Experience;
+                existing.PhotoFileName = cv.PhotoFileName;
+            }
+
+            _context.SaveChanges();
         }
     }
 }

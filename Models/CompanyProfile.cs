@@ -10,6 +10,6 @@
         public string? Industry { get; set; }
         public string? Location { get; set; }
         public string? PackageType { get; set; } = "Free"; // Free, Premium, Enterprise
-        public DateTime PackageExpiryDate { get; set; }
+        public DateTime? PackageExpiryDate { get; set; }
     }
 }

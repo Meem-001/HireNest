@@ -1,91 +1,79 @@
-﻿using Dapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using InternshipManagementSystem.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InternshipManagementSystem.Data
 {
     public class TransactionRepository
     {
-        private readonly DbHelper _dbHelper;
+        private readonly AppDbContext _context;
 
-        public TransactionRepository(DbHelper dbHelper)
+        public TransactionRepository(AppDbContext context)
         {
-            _dbHelper = dbHelper;
+            _context = context;
         }
 
-        public int CreateTransaction(PaymentTransaction transaction)  // ✅ Return int instead of void
+        public int CreateTransaction(PaymentTransaction transaction)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var sql = @"INSERT INTO Transactions (CompanyId, PackageName, Amount, TransactionId, Status, CreatedAt) 
-                   VALUES (@CompanyId, @PackageName, @Amount, @TransactionId, @Status, @CreatedAt);
-                   SELECT LAST_INSERT_ID();";
-                return connection.ExecuteScalar<int>(sql, transaction);  // ✅ Returns the new ID
-            }
+            _context.PaymentTransactions.Add(transaction);
+            _context.SaveChanges();
+            return transaction.Id; // EF automatically populates the Id after SaveChanges
         }
 
-        // ✅ NEW: Get all transactions for Admin
         public List<PaymentTransaction> GetAllTransactions()
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.Query<PaymentTransaction>("SELECT * FROM Transactions ORDER BY CreatedAt DESC").ToList();
-            }
+            return _context.PaymentTransactions
+                .OrderByDescending(t => t.CreatedAt)
+                .ToList();
         }
 
-        // ✅ NEW: Get only Pending transactions for Admin Approval
         public List<PaymentTransaction> GetPendingTransactions()
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.Query<PaymentTransaction>(
-                    "SELECT * FROM Transactions WHERE Status = 'Pending' ORDER BY CreatedAt DESC"
-                ).ToList();
-            }
+            return _context.PaymentTransactions
+                .Where(t => t.Status == "Pending")
+                .OrderByDescending(t => t.CreatedAt)
+                .ToList();
         }
 
-        // ✅ NEW: Get transactions for a specific Company (for Receipts)
         public List<PaymentTransaction> GetTransactionsByCompanyId(int companyId)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.Query<PaymentTransaction>(
-                    "SELECT * FROM Transactions WHERE CompanyId = @CompanyId ORDER BY CreatedAt DESC",
-                    new { CompanyId = companyId }
-                ).ToList();
-            }
+            return _context.PaymentTransactions
+                .Where(t => t.CompanyId == companyId)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToList();
         }
 
-        // ✅ FIXED: Approve and add +50 posts to CompanyProfile (not Users)
         public void ApproveTransaction(int transactionId, int postsToAdd)
         {
-            using (var connection = _dbHelper.GetConnection())
+            // 1. Find the transaction
+            var transaction = _context.PaymentTransactions.Find(transactionId);
+
+            if (transaction != null && transaction.Status == "Pending")
             {
-                var transaction = connection.QueryFirstOrDefault<PaymentTransaction>(
-                    "SELECT * FROM Transactions WHERE Id = @Id", new { Id = transactionId });
+                // 2. Update Transaction Status
+                transaction.Status = "Approved";
 
-                if (transaction != null && transaction.Status == "Pending")
+                // 3. Update CompanyProfile PostsRemaining
+                var companyProfile = _context.CompanyProfiles.FirstOrDefault(cp => cp.CompanyId == transaction.CompanyId);
+                if (companyProfile != null)
                 {
-                    // 1. Update Transaction Status
-                    connection.Execute(
-                        "UPDATE Transactions SET Status = 'Approved' WHERE Id = @Id",
-                        new { Id = transactionId });
-
-                    // 2. ✅ FIXED: Update CompanyProfiles table instead of Users
-                    connection.Execute(
-                        "UPDATE CompanyProfiles SET PostsRemaining = PostsRemaining + @PostsToAdd WHERE CompanyId = @CompanyId",
-                        new { PostsToAdd = postsToAdd, CompanyId = transaction.CompanyId });
+                    companyProfile.PostsRemaining += postsToAdd;
                 }
+
+                // 4. Save all changes at once
+                _context.SaveChanges();
             }
         }
 
-        // ✅ NEW: Reject a transaction
         public void RejectTransaction(int transactionId)
         {
-            using (var connection = _dbHelper.GetConnection())
+            var transaction = _context.PaymentTransactions.Find(transactionId);
+            if (transaction != null)
             {
-                connection.Execute(
-                    "UPDATE Transactions SET Status = 'Rejected' WHERE Id = @Id",
-                    new { Id = transactionId });
+                transaction.Status = "Rejected";
+                _context.SaveChanges();
             }
         }
     }

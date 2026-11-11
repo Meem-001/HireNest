@@ -1,4 +1,8 @@
-﻿namespace InternshipManagementSystem.Models
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace InternshipManagementSystem.Models
 {
     public class Internship
     {
@@ -14,8 +18,12 @@
         public int CompanyId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Non-DB properties for display only (used by repository joins)
-        public string? CompanyName { get; set; }
-        public int ApplicantCount { get; set; }
+        // 🚫 Tell EF these are from JOINs, not the 'internships' table
+        [NotMapped] public string? CompanyName { get; set; }
+        [NotMapped] public int ApplicantCount { get; set; }
+
+        // ✅ EF Navigation Properties
+        public virtual User? Company { get; set; }
+        public virtual ICollection<Application> Applications { get; set; } = new List<Application>();
     }
 }

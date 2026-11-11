@@ -1,97 +1,98 @@
-﻿using Dapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using InternshipManagementSystem.Models;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InternshipManagementSystem.Data
 {
     public class InternshipRepository
     {
-        private readonly DbHelper _dbHelper;
+        private readonly AppDbContext _context;
 
-        public InternshipRepository(DbHelper dbHelper)
+        public InternshipRepository(AppDbContext context)
         {
-            _dbHelper = dbHelper;
+            _context = context;
         }
 
         public int CreateInternship(Internship internship)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var sql = @"INSERT INTO Internships (Title, Description, RequiredSkills, Location, Duration, Salary, JobType, ClosingDate, CompanyId, CreatedAt) 
-                           VALUES (@Title, @Description, @RequiredSkills, @Location, @Duration, @Salary, @JobType, @ClosingDate, @CompanyId, @CreatedAt);
-                           SELECT LAST_INSERT_ID();";
-                return connection.ExecuteScalar<int>(sql, internship);
-            }
+            _context.Internships.Add(internship);
+            _context.SaveChanges();
+            return internship.Id;
         }
 
         public List<Internship> GetAllInternships()
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var sql = @"SELECT i.*, u.FullName as CompanyName,
-                            (SELECT COUNT(*) FROM Applications a WHERE a.InternshipId = i.Id) as ApplicantCount
-                            FROM Internships i
-                            LEFT JOIN Users u ON i.CompanyId = u.Id
-                            ORDER BY i.CreatedAt DESC";
-                return connection.Query<Internship>(sql).ToList();
-            }
+            return _context.Internships
+                .Include(i => i.Company)
+                .Include(i => i.Applications)
+                .Select(i => new Internship
+                {
+                    Id = i.Id,
+                    Title = i.Title,
+                    Description = i.Description,
+                    RequiredSkills = i.RequiredSkills,
+                    Location = i.Location,
+                    Duration = i.Duration,
+                    Salary = i.Salary,
+                    JobType = i.JobType,
+                    ClosingDate = i.ClosingDate,
+                    CompanyId = i.CompanyId,
+                    CreatedAt = i.CreatedAt,
+                    CompanyName = i.Company != null ? i.Company.FullName : "Unknown",
+                    ApplicantCount = i.Applications.Count
+                })
+                .OrderByDescending(i => i.CreatedAt)
+                .ToList();
         }
 
         public List<Internship> GetInternshipsByCompanyId(int companyId)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.Query<Internship>(
-                    "SELECT * FROM Internships WHERE CompanyId = @CompanyId ORDER BY CreatedAt DESC",
-                    new { CompanyId = companyId }
-                ).ToList();
-            }
+            return _context.Internships
+                .Where(i => i.CompanyId == companyId)
+                .OrderByDescending(i => i.CreatedAt)
+                .ToList();
         }
 
         public Internship GetInternshipById(int id)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.QueryFirstOrDefault<Internship>(
-                    "SELECT * FROM Internships WHERE Id = @Id",
-                    new { Id = id }
-                );
-            }
+            return _context.Internships.Find(id);
         }
 
         public void UpdateInternship(Internship internship)
         {
-            using (var connection = _dbHelper.GetConnection())
+            var existing = _context.Internships.Find(internship.Id);
+            if (existing != null)
             {
-                var sql = @"UPDATE Internships 
-                   SET Title = @Title, 
-                       Description = @Description, 
-                       RequiredSkills = @RequiredSkills, 
-                       Location = @Location, 
-                       Duration = @Duration,
-                       Salary = @Salary,
-                       JobType = @JobType,
-                       ClosingDate = @ClosingDate
-                   WHERE Id = @Id";
-                connection.Execute(sql, internship);
+                existing.Title = internship.Title;
+                existing.Description = internship.Description;
+                existing.RequiredSkills = internship.RequiredSkills;
+                existing.Location = internship.Location;
+                existing.Duration = internship.Duration;
+                existing.Salary = internship.Salary;
+                existing.JobType = internship.JobType;
+                existing.ClosingDate = internship.ClosingDate;
+                _context.SaveChanges();
             }
         }
 
         public void DeleteInternship(int id)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                connection.Execute("DELETE FROM Applications WHERE InternshipId = @Id", new { Id = id });
-                connection.Execute("DELETE FROM Internships WHERE Id = @Id", new { Id = id });
-            }
+            var apps = _context.Applications.Where(a => a.InternshipId == id).ToList();
+            _context.Applications.RemoveRange(apps);
+
+            var internship = _context.Internships.Find(id);
+            if (internship != null) _context.Internships.Remove(internship);
+
+            _context.SaveChanges();
         }
 
         public Dictionary<string, int> GetTopRequiredSkills()
         {
-            using var conn = _dbHelper.GetConnection();
-            var skills = conn.Query<string>("SELECT RequiredSkills FROM Internships").ToList();
-
+            var skills = _context.Internships.Select(i => i.RequiredSkills).ToList();
             var skillCounts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var s in skills)
             {
                 var parts = s.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
@@ -103,16 +104,26 @@ namespace InternshipManagementSystem.Data
 
         public InternshipDetailsViewModel GetInternshipWithCompany(int id)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var sql = @"SELECT i.Id, i.Title, i.Description, i.RequiredSkills, i.Location, i.Duration, 
-                           i.Salary, i.JobType, i.ClosingDate, i.CompanyId, i.CreatedAt,
-                           u.FullName as CompanyName, u.Email as CompanyEmail
-                   FROM Internships i
-                   JOIN Users u ON i.CompanyId = u.Id
-                   WHERE i.Id = @Id";
-                return connection.QueryFirstOrDefault<InternshipDetailsViewModel>(sql, new { Id = id });
-            }
+            return _context.Internships
+                .Include(i => i.Company)
+                .Where(i => i.Id == id)
+                .Select(i => new InternshipDetailsViewModel
+                {
+                    Id = i.Id,
+                    Title = i.Title,
+                    Description = i.Description,
+                    RequiredSkills = i.RequiredSkills,
+                    Location = i.Location,
+                    Duration = i.Duration,
+                    Salary = i.Salary,
+                    JobType = i.JobType,
+                    ClosingDate = i.ClosingDate,
+                    CompanyId = i.CompanyId,
+                    CreatedAt = i.CreatedAt,
+                    CompanyName = i.Company != null ? i.Company.FullName : "Unknown",
+                    CompanyEmail = i.Company != null ? i.Company.Email : ""
+                })
+                .FirstOrDefault();
         }
     }
 }

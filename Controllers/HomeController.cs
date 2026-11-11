@@ -1,17 +1,18 @@
 using InternshipManagementSystem.Data;
 using Microsoft.AspNetCore.Mvc;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InternshipManagementSystem.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly DbHelper _dbHelper;
+        private readonly AppDbContext _context;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(DbHelper dbHelper, ILogger<HomeController> logger)
+        // ? Inject AppDbContext instead of DbHelper
+        public HomeController(AppDbContext context, ILogger<HomeController> logger)
         {
-            _dbHelper = dbHelper;
+            _context = context;
             _logger = logger;
         }
 
@@ -23,10 +24,10 @@ namespace InternshipManagementSystem.Controllers
             string message = "Database Not Connected";
             try
             {
-                using (var connection = _dbHelper.GetConnection())
+                // ? EF Core way to check database connection
+                if (_context.Database.CanConnect())
                 {
-                    connection.Open();
-                    message = "? Successfully Connected to MySQL!";
+                    message = "? Successfully Connected to MySQL via Entity Framework Core!";
                 }
             }
             catch (Exception ex)
@@ -37,6 +38,7 @@ namespace InternshipManagementSystem.Controllers
             ViewBag.ConnectionStatus = message;
             return View();
         }
+
         public IActionResult Privacy()
         {
             return View();

@@ -1,28 +1,37 @@
 ﻿using InternshipManagementSystem.Data;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using InternshipManagementSystem.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// Register services
-builder.Services.AddSingleton<DbHelper>();
-builder.Services.AddSingleton<UserRepository>();
-builder.Services.AddSingleton<InternshipRepository>();
-builder.Services.AddSingleton<ApplicationRepository>();
-builder.Services.AddSingleton<CVRepository>();
-builder.Services.AddSingleton<TransactionRepository>();
+// ✅ Add Entity Framework Core (Scoped by default)
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        new MySqlServerVersion(new Version(10, 4, 32)) // Matches your XAMPP MariaDB
+    ));
+
+// ✅ Register repositories as Scoped (so they can use the Scoped AppDbContext)
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<InternshipRepository>();
+builder.Services.AddScoped<ApplicationRepository>();
+builder.Services.AddScoped<CVRepository>();
 builder.Services.AddScoped<CompanyProfileRepository>();
+builder.Services.AddScoped<TransactionRepository>();
+
 // Register the HttpClient and our Service together
 builder.Services.AddHttpClient<GeminiService>();
+
+// Email Service (Singleton is fine here as it just uses config)
+builder.Services.AddSingleton<EmailService>();
 
 // ✅ ADD SWAGGER SERVICES HERE ✅
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddSingleton<EmailService>();
 
 // Configure cookie authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

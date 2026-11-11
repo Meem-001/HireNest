@@ -1,126 +1,86 @@
-﻿using Dapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using InternshipManagementSystem.Models;
-using MySql.Data.MySqlClient;
-using System.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InternshipManagementSystem.Data
 {
     public class UserRepository
     {
-        private readonly DbHelper _dbHelper;
+        private readonly AppDbContext _context;
 
-        public UserRepository(DbHelper dbHelper)
+        public UserRepository(AppDbContext context)
         {
-            _dbHelper = dbHelper;
+            _context = context;
         }
 
-        // Check if email already exists
         public bool EmailExists(string email)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var count = connection.ExecuteScalar<int>(
-                    "SELECT COUNT(*) FROM Users WHERE Email = @Email",
-                    new { Email = email }
-                );
-                return count > 0;
-            }
+            return _context.Users.Any(u => u.Email == email);
         }
 
-        // Create new user
         public int CreateUser(User user)
         {
-            using (var connection = _dbHelper.GetConnection())
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            // ✅ If it's a Company, create CompanyProfile
+            if (user.Role == "Company")
             {
-                // ✅ Removed PostsRemaining from INSERT
-                var sql = @"INSERT INTO Users (FullName, Email, PasswordHash, Role, CreatedAt) 
-                           VALUES (@FullName, @Email, @PasswordHash, @Role, @CreatedAt);
-                           SELECT LAST_INSERT_ID();";
-
-                var userId = connection.ExecuteScalar<int>(sql, user);
-
-                // ✅ If it's a Company, create CompanyProfile
-                if (user.Role == "Company")
+                var profile = new CompanyProfile // ⚠️ Change to 'Companyprofile' if your class name has lowercase 'p'
                 {
-                    var profileSql = @"INSERT INTO CompanyProfiles (CompanyId, PostsRemaining, PackageType) 
-                                      VALUES (@CompanyId, 5, 'Free')";
-                    connection.Execute(profileSql, new { CompanyId = userId });
-                }
-
-                return userId;
+                    CompanyId = user.Id,
+                    PostsRemaining = 5,
+                    PackageType = "Free"
+                };
+                _context.CompanyProfiles.Add(profile);
+                _context.SaveChanges();
             }
+
+            return user.Id;
         }
 
-        // Get user by email
         public User GetUserByEmail(string email)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.QueryFirstOrDefault<User>(
-                    "SELECT * FROM Users WHERE Email = @Email",
-                    new { Email = email }
-                );
-            }
+            return _context.Users.FirstOrDefault(u => u.Email == email);
         }
 
         public List<User> GetAllUsers()
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.Query<User>("SELECT * FROM Users ORDER BY CreatedAt DESC").ToList();
-            }
+            return _context.Users.OrderByDescending(u => u.CreatedAt).ToList();
         }
 
         public List<User> GetUsersByRole(string role)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.Query<User>(
-                    "SELECT * FROM Users WHERE Role = @Role ORDER BY CreatedAt DESC",
-                    new { Role = role }
-                ).ToList();
-            }
+            return _context.Users.Where(u => u.Role == role).OrderByDescending(u => u.CreatedAt).ToList();
         }
 
         public void DeleteUser(int id)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                // ✅ Also delete CompanyProfile if exists
-                connection.Execute("DELETE FROM CompanyProfiles WHERE CompanyId = @Id", new { Id = id });
-                connection.Execute("DELETE FROM Users WHERE Id = @Id", new { Id = id });
-            }
+            var profile = _context.CompanyProfiles.FirstOrDefault(cp => cp.CompanyId == id);
+            if (profile != null) _context.CompanyProfiles.Remove(profile);
+
+            var user = _context.Users.Find(id);
+            if (user != null) _context.Users.Remove(user);
+
+            _context.SaveChanges();
         }
 
-        // Get user by ID
         public User GetUserById(int id)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                return connection.QueryFirstOrDefault<User>(
-                    "SELECT * FROM Users WHERE Id = @Id",
-                    new { Id = id }
-                );
-            }
+            return _context.Users.Find(id);
         }
 
         public void UpdateUser(User user)
         {
-            using (var connection = _dbHelper.GetConnection())
+            var existing = _context.Users.Find(user.Id);
+            if (existing != null)
             {
-                connection.Execute(
-                    "UPDATE Users SET FullName = @FullName, Skills = @Skills WHERE Id = @Id",
-                    user
-                );
+                existing.FullName = user.FullName;
+                existing.Skills = user.Skills;
+                _context.SaveChanges();
             }
-        }
-
-        // ✅ DEPRECATED: This method is no longer needed since we use CompanyProfileRepository
-        // Keeping it here for backwards compatibility but it does nothing
-        public void DecrementPostsRemaining(int userId)
-        {
-            // This is now handled by CompanyProfileRepository.UpdatePostsRemaining()
-            // Keeping this method to avoid breaking existing code
         }
     }
 }

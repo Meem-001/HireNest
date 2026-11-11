@@ -1,57 +1,51 @@
-﻿using Dapper;
+﻿using System.Linq;
 using InternshipManagementSystem.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace InternshipManagementSystem.Data
 {
     public class CompanyProfileRepository
     {
-        private readonly DbHelper _dbHelper;
+        private readonly AppDbContext _context;
 
-        public CompanyProfileRepository(DbHelper dbHelper)
+        public CompanyProfileRepository(AppDbContext context)
         {
-            _dbHelper = dbHelper;
+            _context = context;
         }
 
         public CompanyProfile GetByCompanyId(int companyId)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var sql = "SELECT * FROM CompanyProfiles WHERE CompanyId = @CompanyId";
-                return connection.QueryFirstOrDefault<CompanyProfile>(sql, new { CompanyId = companyId });
-            }
+            return _context.CompanyProfiles.FirstOrDefault(cp => cp.CompanyId == companyId);
         }
 
         public void CreateCompanyProfile(CompanyProfile profile)
         {
-            using (var connection = _dbHelper.GetConnection())
-            {
-                var sql = @"INSERT INTO CompanyProfiles (CompanyId, PostsRemaining, Website, CompanyDescription, Industry, Location, PackageType)
-                           VALUES (@CompanyId, @PostsRemaining, @Website, @CompanyDescription, @Industry, @Location, @PackageType)";
-                connection.Execute(sql, profile);
-            }
+            _context.CompanyProfiles.Add(profile);
+            _context.SaveChanges();
         }
 
         public void UpdatePostsRemaining(int companyId, int postsRemaining)
         {
-            using (var connection = _dbHelper.GetConnection())
+            var profile = _context.CompanyProfiles.FirstOrDefault(cp => cp.CompanyId == companyId);
+            if (profile != null)
             {
-                var sql = "UPDATE CompanyProfiles SET PostsRemaining = @PostsRemaining WHERE CompanyId = @CompanyId";
-                connection.Execute(sql, new { CompanyId = companyId, PostsRemaining = postsRemaining });
+                profile.PostsRemaining = postsRemaining;
+                _context.SaveChanges();
             }
         }
 
         public void UpdateCompanyProfile(CompanyProfile profile)
         {
-            using (var connection = _dbHelper.GetConnection())
+            var existing = _context.CompanyProfiles.FirstOrDefault(cp => cp.CompanyId == profile.CompanyId);
+            if (existing != null)
             {
-                var sql = @"UPDATE CompanyProfiles SET 
-                           Website = @Website, 
-                           CompanyDescription = @CompanyDescription, 
-                           Industry = @Industry, 
-                           Location = @Location,
-                           PackageType = @PackageType
-                           WHERE CompanyId = @CompanyId";
-                connection.Execute(sql, profile);
+                existing.Website = profile.Website;
+                existing.CompanyDescription = profile.CompanyDescription;
+                existing.Industry = profile.Industry;
+                existing.Location = profile.Location;
+                existing.PackageType = profile.PackageType;
+
+                _context.SaveChanges();
             }
         }
     }

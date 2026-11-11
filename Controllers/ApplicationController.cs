@@ -16,16 +16,20 @@ namespace InternshipManagementSystem.Controllers
         private readonly ApplicationRepository _appRepo;
         private readonly InternshipRepository _intRepo;
         private readonly EmailService _emailService;
-        private readonly CVRepository _cvRepo;  // ✅ CVRepository (capital CV)
+        private readonly CVRepository _cvRepo;
 
-        public ApplicationController(ApplicationRepository appRepo, InternshipRepository intRepo, EmailService emailService, CVRepository cvRepo)  // ✅ CVRepository
+        // ✅ THIS CONSTRUCTOR WAS MISSING! It injects the services so they aren't null.
+        public ApplicationController(
+            ApplicationRepository appRepo,
+            InternshipRepository intRepo,
+            EmailService emailService,
+            CVRepository cvRepo)
         {
-            _appRepo = appRepo;
-            _intRepo = intRepo;
-            _emailService = emailService;
-            _cvRepo = cvRepo;
+            _appRepo = appRepo ?? throw new ArgumentNullException(nameof(appRepo));
+            _intRepo = intRepo ?? throw new ArgumentNullException(nameof(intRepo));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _cvRepo = cvRepo ?? throw new ArgumentNullException(nameof(cvRepo));
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Apply(int internshipId, IFormFile? resume)
@@ -34,91 +38,71 @@ namespace InternshipManagementSystem.Controllers
             {
                 var studentId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-                // ✅ Check if student has built their CV first
-                var cv = _cvRepo.GetByStudentId(studentId);  // ✅ GetByStudentId (not GetCvByUserId)
-                if (cv == null)
+                // ✅ 1. MANDATORY FILE CHECK: File MUST be uploaded
+                if (resume == null || resume.Length == 0)
                 {
-                    TempData["Error"] = "You must build your CV first before applying to internships. Please go to 'My CV' and complete your profile.";
+                    TempData["Error"] = "You must attach a PDF resume file to apply for this internship.";
                     return RedirectToAction("Details", "Internship", new { id = internshipId });
                 }
 
+                // ✅ 2. STRICT PDF CHECK: Only PDF files allowed
+                var ext = Path.GetExtension(resume.FileName).ToLowerInvariant();
+                if (ext != ".pdf")
+                {
+                    TempData["Error"] = "Invalid file type. Only PDF files are allowed.";
+                    return RedirectToAction("Details", "Internship", new { id = internshipId });
+                }
+
+                // ✅ 3. FILE SIZE CHECK (Max 2MB)
+                if (resume.Length > 2 * 1024 * 1024)
+                {
+                    TempData["Error"] = "File too large. Max 2MB.";
+                    return RedirectToAction("Details", "Internship", new { id = internshipId });
+                }
+
+                // ✅ 4. Check if already applied
                 if (_appRepo.HasAlreadyApplied(studentId, internshipId))
                 {
                     TempData["Error"] = "You have already applied to this internship.";
                     return RedirectToAction("Details", "Internship", new { id = internshipId });
                 }
 
-                string? fileName = null;
-
-                // 1. Check if file was actually received
-                if (resume != null && resume.Length > 0)
+                // ✅ 5. Save the PDF File
+                string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resumes");
+                if (!Directory.Exists(uploadDir))
                 {
-                    System.Console.WriteLine($"File Received: {resume.FileName}, Size: {resume.Length} bytes");
-
-                    var ext = Path.GetExtension(resume.FileName).ToLowerInvariant();
-
-                    if (ext != ".pdf" && ext != ".doc" && ext != ".docx")
-                    {
-                        TempData["Error"] = $"Invalid file type: {ext}. Only PDF, DOC, DOCX allowed.";
-                        return RedirectToAction("Details", "Internship", new { id = internshipId });
-                    }
-
-                    // 2MB Limit (Safer than 5MB to avoid server limits)
-                    if (resume.Length > 2 * 1024 * 1024)
-                    {
-                        TempData["Error"] = "File too large. Max 2MB.";
-                        return RedirectToAction("Details", "Internship", new { id = internshipId });
-                    }
-
-                    // 2. Create Directory if it doesn't exist (Prevents "Path not found" errors)
-                    string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "resumes");
-                    if (!Directory.Exists(uploadDir))
-                    {
-                        Directory.CreateDirectory(uploadDir);
-                        System.Console.WriteLine("Created uploads/resumes folder!");
-                    }
-
-                    // 3. Save File
-                    fileName = $"{Guid.NewGuid()}{ext}";
-                    var filePath = Path.Combine(uploadDir, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await resume.CopyToAsync(stream);
-                    }
-
-                    System.Console.WriteLine($"Saved file to: {filePath}");
-                }
-                else
-                {
-                    System.Console.WriteLine("No file received, or file was empty.");
+                    Directory.CreateDirectory(uploadDir);
                 }
 
-                // 4. Save to Database
+                string fileName = $"{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(uploadDir, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await resume.CopyToAsync(stream);
+                }
+
+                // ✅ 6. Create and save the application
                 var application = new Application
                 {
                     StudentId = studentId,
                     InternshipId = internshipId,
                     Status = "Pending",
                     AppliedAt = DateTime.Now,
-                    ResumeFileName = fileName // Will be null if no file
+                    ResumeFileName = fileName // Will always have a value now
                 };
 
                 _appRepo.CreateApplication(application);
+
                 TempData["Success"] = "Application submitted successfully!";
                 return RedirectToAction("MyApplications");
             }
             catch (Exception ex)
             {
-                // Show the EXACT error on the screen so we know what broke
                 TempData["Error"] = "SYSTEM ERROR: " + ex.Message;
-                System.Console.WriteLine("❌ UPLOAD ERROR: " + ex.Message);
-                System.Console.WriteLine("❌ Stack Trace: " + ex.StackTrace);
-
                 return RedirectToAction("Details", "Internship", new { id = internshipId });
             }
         }
-
         // Student: View my applications
         public IActionResult MyApplications()
         {
@@ -134,7 +118,6 @@ namespace InternshipManagementSystem.Controllers
             var companyId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var applications = _appRepo.GetApplicationsForCompany(companyId);
 
-            // 📊 Chart Data
             var statusCounts = _appRepo.GetApplicationStatusByCompany(companyId);
             ViewBag.ChartLabels = JsonSerializer.Serialize(statusCounts.Keys);
             ViewBag.ChartData = JsonSerializer.Serialize(statusCounts.Values);
@@ -146,13 +129,10 @@ namespace InternshipManagementSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Company")]
-
         public IActionResult UpdateStatus(int applicationId, string status, string feedback)
         {
-            // 1. Update status AND feedback in DB
             _appRepo.UpdateApplicationStatus(applicationId, status, feedback);
 
-            // 2. 📧 Send Email Notification with Feedback
             try
             {
                 var app = _appRepo.GetApplicationById(applicationId);
@@ -164,7 +144,6 @@ namespace InternshipManagementSystem.Controllers
                     {
                         string subject = $"Internship Application: {status}";
 
-                        // Add feedback to the email body if it exists
                         string feedbackHtml = "";
                         if (!string.IsNullOrWhiteSpace(feedback))
                         {
@@ -180,7 +159,7 @@ namespace InternshipManagementSystem.Controllers
                     <body style='font-family: Arial, sans-serif;'>
                         <h2 style='color: #333;'>Application Update</h2>
                         <p>Dear <strong>{student.FullName}</strong>,</p>
-                        <p>Your application for the position of <strong>'{@app.InternshipTitle}'</strong> has been <strong style='color: {(status == "Accepted" ? "green" : "red")};'>{status}</strong>.</p>
+                        <p>Your application for the position of <strong>'{app.InternshipTitle}'</strong> has been <strong style='color: {(status == "Accepted" ? "green" : "red")};'>{status}</strong>.</p>
                         {feedbackHtml}
                         <p>Thank you for applying!</p>
                         <hr/>
