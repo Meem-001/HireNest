@@ -2,7 +2,7 @@
 
 HireNest is a full-stack web application that connects students, companies, and administrators on a single platform. It manages the complete internship lifecycle: posting opportunities, skill-based matching, applications, CV management, freemium payments, and automated email communication, with an AI-powered assistant built on the Google Gemini API.
 
-## ? Features
+## Features
 
 - **Role-based authentication** for Students, Companies, and Admins
 - **Internship management**: Posting, browsing, and detailed listings
@@ -14,7 +14,7 @@ HireNest is a full-stack web application that connects students, companies, and 
 - **AI Chatbot**: "HireNest AI Assistant" integrated with the Google Gemini API for real-time user support
 - **RESTful API Endpoints**: Dedicated API controllers for external data consumption, fully documented with Swagger UI
 
-## ??? Technologies Used
+## Technologies Used
 
 - **Backend**: ASP.NET Core 8 MVC & Web API
 - **Database**: MySQL (Entity Framework Core 8 with `Pomelo.EntityFrameworkCore.MySql`)
@@ -24,46 +24,46 @@ HireNest is a full-stack web application that connects students, companies, and 
 - **Security**: BCrypt password hashing, cookie-based authentication, EF Core parameterized queries (SQL injection protection)
 - **API Documentation**: Swagger UI (Swashbuckle)
 
-## ?? Project Structure
+##  Project Structure
 
 ### Controllers (MVC - Web UI)
-- `AccountController.cs` — Registration, login, and role-based authentication
-- `AdminController.cs` — Approvals, premium control, and platform oversight
-- `ApplicationController.cs` — Student applications and status updates
-- `ChatController.cs` — Endpoint for the AI chatbot
-- `CVController.cs` — CV upload and CV Builder
-- `HomeController.cs` — Landing page and internship browsing
-- `InternshipController.cs` — Internship posting and details
-- `PaymentController.cs` — Premium purchases (simulated payment)
-- `StudentController.cs` — Student skills and match percentage
+- `AccountController.cs` â€” Registration, login, and role-based authentication
+- `AdminController.cs` â€” Approvals, premium control, and platform oversight
+- `ApplicationController.cs` â€” Student applications and status updates
+- `ChatController.cs` â€” Endpoint for the AI chatbot
+- `CVController.cs` â€” CV upload and CV Builder
+- `HomeController.cs` â€” Landing page and internship browsing
+- `InternshipController.cs` â€” Internship posting and details
+- `PaymentController.cs` â€” Premium purchases (simulated payment)
+- `StudentController.cs` â€” Student skills and match percentage
 
 ### API Controllers (RESTful Endpoints)
-- `Api/InternshipsApiController.cs` — REST endpoints for fetching internship data
-- `Api/ApplicationsApiController.cs` — REST endpoints for fetching application data
+- `Api/InternshipsApiController.cs` â€” REST endpoints for fetching internship data
+- `Api/ApplicationsApiController.cs` â€” REST endpoints for fetching application data
 
 ### Models
-- `User.cs` — Users with roles (Student / Company / Admin)
-- `Internship.cs` — Internship listings with required skills
-- `Application.cs` — Links students to internships with status
-- `CV.cs` — Student resume data
-- `CompanyProfile.cs` — Company details and post limits
-- `PaymentTransaction.cs` — Premium payment records
+- `User.cs` â€” Users with roles (Student / Company / Admin)
+- `Internship.cs` â€” Internship listings with required skills
+- `Application.cs` â€” Links students to internships with status
+- `CV.cs` â€” Student resume data
+- `CompanyProfile.cs` â€” Company details and post limits
+- `PaymentTransaction.cs` â€” Premium payment records
 
 ### Data (Entity Framework Core)
-- `AppDbContext.cs` — Central EF Core DbContext managing all database sets and relationships
-- `UserRepository.cs`, `InternshipRepository.cs`, `ApplicationRepository.cs`, `CVRepository.cs`, `CompanyProfileRepository.cs`, `TransactionRepository.cs` — Repository Pattern implementation using modern EF Core LINQ queries for clean, maintainable data access
+- `AppDbContext.cs` â€” Central EF Core DbContext managing all database sets and relationships
+- `UserRepository.cs`, `InternshipRepository.cs`, `ApplicationRepository.cs`, `CVRepository.cs`, `CompanyProfileRepository.cs`, `TransactionRepository.cs` â€” Repository Pattern implementation using modern EF Core LINQ queries for clean, maintainable data access
 
 ### Services
-- `GeminiService.cs` — Google Gemini API integration for the chatbot
-- `EmailService.cs` — SMTP email handling for accept/reject notifications
+- `GeminiService.cs` â€” Google Gemini API integration for the chatbot
+- `EmailService.cs` â€” SMTP email handling for accept/reject notifications
 
 ### Views
-- `Account/` — Login and registration forms
-- `Admin/` — Admin dashboard and controls
-- `Application/`, `Internship/`, `Student/`, `CV/`, `Payment/` — Module-specific pages
-- `Shared/_Layout.cshtml` — Global layout including the AI chat widget
+- `Account/` â€” Login and registration forms
+- `Admin/` â€” Admin dashboard and controls
+- `Application/`, `Internship/`, `Student/`, `CV/`, `Payment/` â€” Module-specific pages
+- `Shared/_Layout.cshtml` â€” Global layout including the AI chat widget
 
-## ?? Security Notes
+##  Security Notes
 
 - `appsettings.json` is strictly `.gitignore`d; all secrets (connection strings, API keys, SMTP passwords) stay on the local machine.
 - Passwords are securely hashed with **BCrypt** before database storage.
