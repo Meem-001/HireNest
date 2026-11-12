@@ -13,7 +13,7 @@ HireNest is a full-stack web application that connects students, companies, and 
 
 # Technologies Used
 -  Backend: ASP.NET Core 8 MVC
-- Database: MySQL (MySql.Data with Dapper)
+- Database: MySQL(Entity Framework with core 8)
 - Email: Gmail SMTP with App Password
 - AI: Google Gemini API (REST calls via HttpClient)
 - Frontend: Bootstrap 5, JavaScript, jQuery
