@@ -1,63 +1,71 @@
-# HireNest — Internship Management System
+# HireNest
+
 HireNest is a full-stack web application that connects students, companies, and administrators on a single platform. It manages the complete internship lifecycle: posting opportunities, skill-based matching, applications, CV management, freemium payments, and automated email communication, with an AI-powered assistant built on the Google Gemini API.
 
-# Features
-- Role-based authentication for Students, Companies, and Admins
-- Internship posting, browsing, and detailed listings
-- Skill-based match percentage between students and internships
-- CV upload and built-in CV Builder
-- Application workflow with accept / reject decisions
-- Automated email notifications when an application is accepted or rejected
-- Freemium model for companies: 5 free internship posts, then premium via a simulated payment gateway, controlled by the Admin
-- AI chatbot (HireNest AI Assistant) integrated with the Google Gemini API
+## ? Features
 
-# Technologies Used
--  Backend: ASP.NET Core 8 MVC
-- Database: MySQL(Entity Framework with core 8)
-- Email: Gmail SMTP with App Password
-- AI: Google Gemini API (REST calls via HttpClient)
-- Frontend: Bootstrap 5, JavaScript, jQuery
-- Security: BCrypt password hashing, cookie-based authentication
-- API Documentation: Swagger UI (Swashbuckle)
+- **Role-based authentication** for Students, Companies, and Admins
+- **Internship management**: Posting, browsing, and detailed listings
+- **Skill-based matching**: Percentage match calculation between student skills and internship requirements
+- **CV Management**: Built-in CV Builder and file upload support
+- **Application workflow**: Streamlined apply, accept, and reject decisions
+- **Automated email notifications**: Instant SMTP emails when applications are accepted or rejected
+- **Freemium business model**: Companies get 5 free internship posts, with premium upgrades via a simulated payment gateway controlled by the Admin
+- **AI Chatbot**: "HireNest AI Assistant" integrated with the Google Gemini API for real-time user support
+- **RESTful API Endpoints**: Dedicated API controllers for external data consumption, fully documented with Swagger UI
 
+## ??? Technologies Used
 
-## Project Structure
-Controllers:
-  - AccountController.cs — registration, login, and role-based authentication
-  - AdminController.cs — approvals, premium control, and platform oversight
-  - ApplicationController.cs — student applications and status updates
-  - ChatController.cs — endpoint for the AI chatbot
-  - CVController.cs — CV upload and CV Builder
-  - HomeController.cs — landing page and internship browsing
-  - InternshipController.cs — internship posting and details
-  - PaymentController.cs — premium purchases (simulated payment)
-  - StudentController.cs — student skills and match percentage
+- **Backend**: ASP.NET Core 8 MVC & Web API
+- **Database**: MySQL (Entity Framework Core 8 with `Pomelo.EntityFrameworkCore.MySql`)
+- **Email**: Gmail SMTP with App Password
+- **AI**: Google Gemini API (REST calls via `HttpClient`)
+- **Frontend**: Bootstrap 5, JavaScript, jQuery
+- **Security**: BCrypt password hashing, cookie-based authentication, EF Core parameterized queries (SQL injection protection)
+- **API Documentation**: Swagger UI (Swashbuckle)
 
-    Models:
-  - User.cs — users with roles (Student / Company / Admin)
-  - Internship.cs — internship listings with required skills
-  - Application.cs — links students to internships with status
-  - CV.cs — student resume data
-  - CompanyProfile.cs — company details
-  - PaymentTransaction.cs — premium payment records
+## ?? Project Structure
 
-   Data:
-  - DbHelper.cs — MySQL connection helper
-  - UserRepository.cs, InternshipRepository.cs, ApplicationRepository.cs, CVRepository.cs, CompanyProfileRepository.cs, TransactionRepository.cs — Repository Pattern for all database access
+### Controllers (MVC - Web UI)
+- `AccountController.cs` — Registration, login, and role-based authentication
+- `AdminController.cs` — Approvals, premium control, and platform oversight
+- `ApplicationController.cs` — Student applications and status updates
+- `ChatController.cs` — Endpoint for the AI chatbot
+- `CVController.cs` — CV upload and CV Builder
+- `HomeController.cs` — Landing page and internship browsing
+- `InternshipController.cs` — Internship posting and details
+- `PaymentController.cs` — Premium purchases (simulated payment)
+- `StudentController.cs` — Student skills and match percentage
 
- Services:
-  - GeminiService.cs — Google Gemini API integration for the chatbot
-  - EmailService.cs — SMTP emails for accept / reject notifications
+### API Controllers (RESTful Endpoints)
+- `Api/InternshipsApiController.cs` — REST endpoints for fetching internship data
+- `Api/ApplicationsApiController.cs` — REST endpoints for fetching application data
 
-- **Views**
-  - Account/— login and registration forms
-  - Admin/ — admin dashboard and controls
-  - Application/, Internship/, Student/, CV/, Payment/ — module pages
-  - Shared/_Layout.cshtml — global layout including the AI chat widget
+### Models
+- `User.cs` — Users with roles (Student / Company / Admin)
+- `Internship.cs` — Internship listings with required skills
+- `Application.cs` — Links students to internships with status
+- `CV.cs` — Student resume data
+- `CompanyProfile.cs` — Company details and post limits
+- `PaymentTransaction.cs` — Premium payment records
 
+### Data (Entity Framework Core)
+- `AppDbContext.cs` — Central EF Core DbContext managing all database sets and relationships
+- `UserRepository.cs`, `InternshipRepository.cs`, `ApplicationRepository.cs`, `CVRepository.cs`, `CompanyProfileRepository.cs`, `TransactionRepository.cs` — Repository Pattern implementation using modern EF Core LINQ queries for clean, maintainable data access
 
-## Security Notes
-- appsettings.json is gitignored; all secrets stay on the local machine
-- Passwords are hashed with BCrypt before storage
-- The Gemini API key is only used server-side and never exposed to the browser
+### Services
+- `GeminiService.cs` — Google Gemini API integration for the chatbot
+- `EmailService.cs` — SMTP email handling for accept/reject notifications
 
+### Views
+- `Account/` — Login and registration forms
+- `Admin/` — Admin dashboard and controls
+- `Application/`, `Internship/`, `Student/`, `CV/`, `Payment/` — Module-specific pages
+- `Shared/_Layout.cshtml` — Global layout including the AI chat widget
+
+## ?? Security Notes
+
+- `appsettings.json` is strictly `.gitignore`d; all secrets (connection strings, API keys, SMTP passwords) stay on the local machine.
+- Passwords are securely hashed with **BCrypt** before database storage.
+- The Gemini API key is only used server-side and is never exposed to the browser.
+- **SQL Injection Protection**: All database queries are executed via Entity Framework Core's parameterized LINQ queries, completely eliminating the risk of SQL injection attacks.
